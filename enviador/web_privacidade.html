@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600&display=swap" rel="stylesheet">
+<style>
+:root { --fundo: #EEF1F4; --superficie: #FFFFFF; --tinta: #16212E; --secundario: #5D6B7A; --linha: #D5DBE2; --cobalto: #2350C8; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --fundo: #10161E; --superficie: #18212C; --tinta: #E6EBF1; --secundario: #93A1B1; --linha: #2A3644; --cobalto: #7EA0FF; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--tinta); font: 400 17px/1.6 "Barlow", system-ui, sans-serif; }
+a { color: var(--cobalto); }
+.casca { max-width: 720px; margin: 0 auto; padding: 18px 16px 72px; }
+.voltar { font-size: 15px; color: var(--secundario); }
+h1 { font: 600 40px/1.05 "Barlow Condensed", "Arial Narrow", sans-serif; margin: 28px 0 8px; }
+h2 { font: 600 20px/1.3 "Barlow", sans-serif; margin: 30px 0 6px; }
+p, li { max-width: 68ch; }
+ul { padding-left: 20px; }
+li { margin: 4px 0; }
+.resumo { background: var(--superficie); border: 1px solid var(--linha); border-radius: 10px; padding: 14px 18px; margin-top: 18px; }
+.resumo p { margin: 0; }
+.pe { margin-top: 40px; color: var(--secundario); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="casca">
+  <a class="voltar" href="/">Voltar para o início</a>
+  <h1>Como usamos os seus dados</h1>
+  <div class="resumo"><p>Em resumo: seu currículo é lido só para encontrar vagas para você, é enviado a um serviço de inteligência artificial para a análise e é descartado em seguida. Não criamos conta, não guardamos o arquivo e não vendemos nem compartilhamos seus dados para outros fins.</p></div>
+
+  <h2>O que recebemos</h2>
+  <ul>
+    <li>O PDF do seu currículo e o texto que extraímos dele.</li>
+    <li>A cidade e os cargos que você digitar, se digitar.</li>
+    <li>O endereço IP da sua conexão, usado só para limitar o número de análises por dia. O serviço de
+      hospedagem do site também registra endereços IP em seus registros técnicos de acesso, por um período limitado.</li>
+  </ul>
+
+  <h2>Para que usamos</h2>
+  <p>Para descobrir os cargos que combinam com você, procurar vagas abertas e calcular a compatibilidade de cada vaga com o seu currículo. Nada além disso.</p>
+
+  <h2>Com quem compartilhamos</h2>
+  <p>O texto do currículo e das vagas é enviado à Anthropic, empresa que fornece o modelo de inteligência artificial (Claude) que faz a análise. As vagas vêm da busca pública da Gupy; o seu currículo não é enviado à Gupy nem às empresas das vagas.</p>
+
+  <h2>Por quanto tempo guardamos</h2>
+  <ul>
+    <li><strong>Currículo:</strong> fica só na memória do servidor durante a análise, que leva de segundos a poucos minutos, e é descartado ao fim. Nunca é gravado em disco.</li>
+    <li><strong>Resultado</strong> (lista de vagas, notas e os cargos detectados): fica disponível por 30 minutos para a página mostrar e depois é apagado.</li>
+    <li><strong>Contagem de análises por IP:</strong> é zerada todo dia.</li>
+  </ul>
+
+  <h2>Seus direitos</h2>
+  <p>Pela Lei Geral de Proteção de Dados (LGPD), você pode pedir informações sobre o tratamento dos seus dados e a exclusão deles. Como não guardamos o currículo, normalmente não há o que excluir depois de 30 minutos. Para qualquer pedido ou dúvida, fale conosco {{CONTATO}}.</p>
+
+  <h2>Cuidados ao usar</h2>
+  <p>A nota é uma estimativa feita por computador, não uma garantia. Leia cada vaga antes de se candidatar. Se o seu currículo tiver dados que você não quer enviar (CPF, endereço completo, foto de documento), retire-os do PDF antes.</p>
+
+  <p class="pe">Última atualização: outubro de 2026.</p>
+</div>
+</body>
+</html>

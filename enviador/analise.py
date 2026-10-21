@@ -64,7 +64,7 @@ def nota_rapida(cv: str, vaga) -> int:
     return round(100 * (0.6 * p_titulo + 0.4 * p_desc))
 
 
-def analisar_com_ia(cv: str, vaga, candidato: dict) -> Analise:
+def analisar_com_ia(cv: str, vaga, candidato: dict, modelo: str | None = None) -> Analise:
     import anthropic
     prompt = f"""Você é um recrutador experiente e honesto. Avalie se este candidato tem chances REAIS
 de passar na triagem desta vaga. Seja rigoroso: requisitos obrigatórios não atendidos, senioridade
@@ -90,7 +90,7 @@ Empresa: {vaga.empresa or 'não informada'} | Local: {vaga.cidade or 'não infor
 Descrição:
 {vaga.descricao[:6000]}"""
     resp = anthropic.Anthropic().messages.create(
-        model=MODELO_IA, max_tokens=600, messages=[{"role": "user", "content": prompt}])
+        model=modelo or MODELO_IA, max_tokens=600, messages=[{"role": "user", "content": prompt}])
     return interpretar_resposta_ia(resp.content[0].text)
 
 

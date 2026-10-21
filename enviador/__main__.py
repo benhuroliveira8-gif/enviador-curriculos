@@ -16,6 +16,7 @@
     python -m enviador resultados  # o que avança e o que não avança nas suas candidaturas
     python -m enviador manuais     # lista as vagas recomendadas sem e-mail
     python -m enviador resumo      # estatísticas do histórico
+    python -m enviador site        # roda o site público (envie um currículo, veja as vagas) em http://127.0.0.1:8000
 """
 import argparse
 import logging
@@ -183,7 +184,7 @@ def main():
     ap = argparse.ArgumentParser(prog="enviador", description="Enviador automático de currículos")
     ap.add_argument("comando", choices=["configurar", "painel", "buscar", "enviar", "candidatar", "diario", "feitas",
                                         "etapa", "followup", "raiox", "curriculo", "adicionar", "reanalisar",
-                                        "entrevista", "resultados", "manuais", "resumo"])
+                                        "entrevista", "resultados", "manuais", "resumo", "site"])
     ap.add_argument("id", nargs="?", help="etapa: ID da vaga")
     ap.add_argument("etapa", nargs="?", help="etapa: nome da etapa")
     ap.add_argument("obs", nargs="?", help="etapa: observação opcional")
@@ -205,6 +206,10 @@ def main():
         logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING,
                             format="%(levelname)s %(message)s")
     logging.getLogger("pypdf").setLevel(logging.ERROR)
+
+    if args.comando == "site":
+        from .web import rodar as rodar_site
+        return rodar_site(args.porta if args.porta != 8765 else 8000)
 
     if args.comando == "configurar":
         from .configuracao import assistente

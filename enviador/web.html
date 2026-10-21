@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vagas para o seu currículo</title>
+<meta name="description" content="Envie seu currículo em PDF e veja as vagas abertas em que você tem mais chance, com o motivo de cada nota. Grátis e sem cadastro.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fundo: #EEF1F4; --superficie: #FFFFFF; --tinta: #16212E; --secundario: #5D6B7A; --linha: #D5DBE2;
+  --cobalto: #2350C8; --cobalto-claro: #E3EAFA; --verde: #1E7A52; --verde-claro: #E2F2EA;
+  --ambar: #A85A12; --ambar-claro: #FBEEDD; --vermelho: #A3261E; --vermelho-claro: #FBE7E5;
+  --sans: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --cond: "Barlow Condensed", "Arial Narrow", var(--sans);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #10161E; --superficie: #18212C; --tinta: #E6EBF1; --secundario: #93A1B1; --linha: #2A3644;
+    --cobalto: #7EA0FF; --cobalto-claro: #1E2A47; --verde: #5CC796; --verde-claro: #16302A;
+    --ambar: #E8A35C; --ambar-claro: #3A2914; --vermelho: #F08A80; --vermelho-claro: #3A1D1B; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--tinta); font: 400 17px/1.55 var(--sans); -webkit-text-size-adjust: 100%; }
+a { color: var(--cobalto); }
+:focus-visible { outline: 2px solid var(--cobalto); outline-offset: 3px; border-radius: 4px; }
+button, input { font: inherit; color: inherit; }
+.casca { max-width: 980px; margin: 0 auto; padding: 0 16px 72px; }
+
+.barra-topo { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; font-size: 15px; }
+.marca { font: 600 19px var(--cond); color: var(--tinta); text-decoration: none; letter-spacing: .01em; }
+.barra-topo nav a { color: var(--secundario); text-decoration: none; }
+.barra-topo nav a:hover { color: var(--tinta); text-decoration: underline; }
+
+/* abertura: a frase e o envio lado a lado */
+.abertura { display: grid; grid-template-columns: 1fr 1.05fr; gap: 40px; align-items: start; padding: 28px 0 8px; }
+.abertura h1 { font: 600 50px/1.02 var(--cond); margin: 0 0 18px; letter-spacing: -.005em; max-width: 13ch; }
+.abertura .texto p { margin: 0 0 14px; color: var(--secundario); max-width: 44ch; }
+.abertura .texto ul { margin: 18px 0 0; padding: 0; list-style: none; color: var(--secundario); font-size: 16px; }
+.abertura .texto li { padding: 6px 0 6px 22px; position: relative; }
+.abertura .texto li::before { content: ""; position: absolute; left: 2px; top: 15px; width: 8px; height: 8px; border-radius: 50%; background: var(--cobalto); }
+
+.cartao { background: var(--superficie); border: 1px solid var(--linha); border-radius: 12px; padding: 22px; box-shadow: 0 1px 2px rgba(22,33,46,.05); }
+
+/* área de soltar o PDF: o elemento principal da página */
+.soltar {
+  display: grid; place-items: center; text-align: center; gap: 6px; min-height: 170px; padding: 20px;
+  border: 2px dashed var(--cobalto); border-radius: 10px; background: var(--cobalto-claro); cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.soltar:hover, .soltar.arrastando { background: color-mix(in srgb, var(--cobalto-claro) 70%, var(--cobalto) 12%); }
+.soltar strong { font: 600 22px/1.2 var(--cond); color: var(--cobalto); }
+.soltar span { color: var(--secundario); font-size: 15px; }
+.soltar.tem-arquivo { border-style: solid; }
+.soltar svg { width: 34px; height: 34px; color: var(--cobalto); }
+.escondido { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.arquivo-escolhido { font-weight: 600; color: var(--tinta) !important; word-break: break-all; }
+
+.campo { display: grid; gap: 5px; margin-top: 16px; }
+.campo label { font-weight: 500; font-size: 16px; }
+.campo small { color: var(--secundario); font-size: 14px; }
+.campo input[type=text] { padding: 9px 12px; border: 1px solid var(--linha); border-radius: 7px; background: var(--superficie); width: 100%; }
+.duas { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0 14px; align-items: end; }
+.marcar { display: flex; gap: 9px; align-items: flex-start; font-size: 15px; margin-top: 14px; cursor: pointer; }
+.marcar input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--cobalto); flex: none; }
+.botao {
+  display: inline-flex; justify-content: center; align-items: center; gap: 8px; border: 0; border-radius: 8px;
+  background: var(--cobalto); color: #fff; font-weight: 600; font-size: 17px; padding: 12px 20px; cursor: pointer; text-decoration: none;
+}
+@media (prefers-color-scheme: dark) { .botao { color: #0E1420; } }
+.botao:hover { filter: brightness(1.07); }
+.botao[disabled] { opacity: .6; cursor: progress; }
+.botao.claro { background: var(--superficie); color: var(--tinta); border: 1px solid var(--linha); font-weight: 500; }
+.enviar { margin-top: 20px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.enviar .botao { flex: 1 1 220px; }
+.nota-pe { color: var(--secundario); font-size: 14px; }
+.erro { margin-top: 14px; padding: 10px 14px; border-radius: 8px; background: var(--vermelho-claro); color: var(--vermelho); font-size: 15px; }
+.erro[hidden] { display: none; }
+
+/* andamento */
+.andamento { margin-top: 36px; }
+.andamento h2, .resultado h2 { font: 600 30px/1.1 var(--cond); margin: 0 0 6px; }
+.passos { list-style: none; margin: 16px 0 0; padding: 0; counter-reset: passo; }
+.passos li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: center; padding: 9px 0; color: var(--secundario); }
+.passos li::before {
+  counter-increment: passo; content: counter(passo); display: grid; place-items: center; width: 28px; height: 28px;
+  border-radius: 50%; border: 1px solid var(--linha); font: 600 15px var(--cond); background: var(--superficie);
+}
+.passos li.atual { color: var(--tinta); font-weight: 500; }
+.passos li.atual::before { border-color: var(--cobalto); color: var(--cobalto); box-shadow: 0 0 0 4px var(--cobalto-claro); }
+.passos li.feito::before { content: "✓"; background: var(--verde); border-color: var(--verde); color: #fff; }
+.passos small { display: block; font-weight: 400; color: var(--secundario); font-size: 14px; }
+
+/* resultado */
+.resultado { margin-top: 40px; }
+.perfil { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin: 10px 0 4px; color: var(--secundario); font-size: 15px; }
+.chip { font-size: 14px; padding: 2px 10px; border-radius: 999px; background: var(--cobalto-claro); color: var(--cobalto); }
+.chip.favor { background: var(--verde-claro); color: var(--verde); }
+.chip.falta { background: var(--ambar-claro); color: var(--ambar); }
+.resumo-ia { margin: 8px 0 0; max-width: 72ch; color: var(--secundario); font-size: 16px; }
+.aviso { margin-top: 16px; padding: 10px 14px; border-radius: 8px; background: var(--ambar-claro); font-size: 15px; }
+.lista { margin-top: 20px; background: var(--superficie); border: 1px solid var(--linha); border-radius: 12px; }
+.vaga { display: grid; grid-template-columns: 84px 1fr auto; gap: 18px; padding: 18px 20px; border-top: 1px solid var(--linha); align-items: start; }
+.vaga:first-child { border-top: 0; }
+.nota b { display: block; font: 600 44px/0.92 var(--cond); font-variant-numeric: tabular-nums; }
+.nota small { display: block; color: var(--secundario); font-size: 13px; margin-top: 6px; line-height: 1.3; }
+.medidor { height: 4px; background: var(--linha); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.medidor i { display: block; height: 100%; background: currentColor; }
+.alta { color: var(--verde); } .boa { color: var(--cobalto); } .baixa { color: var(--secundario); }
+.vaga h3 { margin: 0; font: 600 19px/1.3 var(--sans); }
+.vaga .onde { color: var(--secundario); font-size: 15px; }
+.vaga p { margin: 6px 0 0; max-width: 64ch; }
+.vaga .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.vaga .botao { font-size: 15px; padding: 9px 14px; white-space: nowrap; }
+.vazio { margin-top: 20px; padding: 28px 24px; background: var(--superficie); border: 1px dashed var(--linha); border-radius: 12px; }
+.vazio h3 { margin: 0 0 4px; font: 600 20px var(--sans); }
+.vazio p { margin: 0; color: var(--secundario); max-width: 62ch; }
+.depois { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--linha); color: var(--secundario); font-size: 14px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 820px) {
+  .abertura { grid-template-columns: 1fr; gap: 24px; padding-top: 8px; }
+  .abertura h1 { font-size: 40px; max-width: none; }
+  .vaga { grid-template-columns: 60px 1fr; gap: 14px; padding: 16px; }
+  .vaga .acao { grid-column: 1 / -1; }
+  .nota b { font-size: 34px; }
+  .duas { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .soltar { transition: none; } }
+</style>
+</head>
+<body>
+<div class="casca">
+  <header class="barra-topo">
+    <a class="marca" href="/">Vagas para o seu currículo</a>
+    <nav><a href="/privacidade">Privacidade</a></nav>
+  </header>
+
+  <section class="abertura">
+    <div class="texto">
+      <h1>Envie seu currículo e veja onde você tem chance de verdade.</h1>
+      <p>Lemos o seu currículo, descobrimos os cargos que combinam com você e procuramos vagas abertas. Cada vaga ganha uma nota e o motivo dela.</p>
+      <ul>
+        <li>As 10 vagas mais compatíveis, com link para se candidatar</li>
+        <li>O que conta a seu favor e o que a vaga pede e você não mostra</li>
+        <li>Grátis, sem cadastro. O currículo é analisado e descartado</li>
+      </ul>
+    </div>
+
+    <form class="cartao" id="form" novalidate>
+      <label class="soltar" id="soltar" for="arquivo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 17v-6"/><path d="m9.5 13.5 2.5-2.5 2.5 2.5"/></svg>
+        <strong id="soltar-titulo">Escolha o PDF do seu currículo</strong>
+        <span id="soltar-sub">Ou arraste o arquivo para cá. Até 5 MB.</span>
+      </label>
+      <input class="escondido" type="file" id="arquivo" name="curriculo" accept="application/pdf,.pdf">
+
+      <div class="duas">
+        <div class="campo"><label for="cidade">Cidade</label><input type="text" id="cidade" name="cidade" placeholder="Ex.: Porto Alegre" autocomplete="address-level2"><small>Deixe em branco para o Brasil todo.</small></div>
+        <label class="marcar" style="margin-bottom:26px"><input type="checkbox" id="remoto" checked> Incluir vagas remotas</label>
+      </div>
+      <div class="campo"><label for="cargos">Cargos que você procura</label><input type="text" id="cargos" name="cargos" placeholder="Opcional. Ex.: analista de suporte, help desk"><small>Se deixar em branco, descobrimos pelo seu currículo.</small></div>
+
+      <label class="marcar"><input type="checkbox" id="aceite"> <span>Concordo que meu currículo seja analisado, inclusive por inteligência artificial, conforme a <a href="/privacidade" target="_blank">política de privacidade</a>. Ele não fica guardado.</span></label>
+
+      <div class="enviar"><button class="botao" type="submit" id="botao">Encontrar minhas vagas</button><span class="nota-pe" id="limite"></span></div>
+      <div class="erro" id="erro" role="alert" hidden></div>
+    </form>
+  </section>
+
+  <section class="andamento" id="andamento" hidden aria-live="polite">
+    <h2>Procurando as suas vagas</h2>
+    <p class="nota-pe" style="margin:0">Leva de 30 segundos a 2 minutos. Pode deixar esta página aberta.</p>
+    <ol class="passos" id="passos">
+      <li data-etapa="perfil">Lendo o currículo e descobrindo os cargos certos para você</li>
+      <li data-etapa="busca">Procurando vagas abertas</li>
+      <li data-etapa="analise">Analisando cada vaga contra o seu currículo<small id="progresso"></small></li>
+    </ol>
+  </section>
+
+  <section class="resultado" id="resultado" hidden></section>
+
+  <footer>
+    <span>As vagas vêm da Gupy. A nota é uma estimativa: leia a vaga antes de se candidatar.</span>
+    <a href="/privacidade">Como usamos seus dados</a>
+  </footer>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let arquivo = null, timer = null;
+
+fetch("/api/info").then((r) => r.json()).then((i) => {
+  $("#limite").textContent = `Até ${i.limite_por_pessoa} análises por dia.`;
+}).catch(() => {});
+
+function escolher(f) {
+  if (!f) return;
+  if (!/\.pdf$/i.test(f.name) && f.type !== "application/pdf") return mostrarErro("O arquivo precisa ser um PDF.");
+  if (f.size > 5 * 1024 * 1024) return mostrarErro("O arquivo é grande demais. Envie um PDF de até 5 MB.");
+  arquivo = f;
+  $("#soltar").classList.add("tem-arquivo");
+  $("#soltar-titulo").textContent = "Currículo escolhido";
+  $("#soltar-sub").innerHTML = `<span class="arquivo-escolhido">${esc(f.name)}</span><br>Clique para trocar.`;
+  mostrarErro("");
+}
+$("#arquivo").addEventListener("change", (e) => escolher(e.target.files[0]));
+const zona = $("#soltar");
+["dragenter", "dragover"].forEach((t) => zona.addEventListener(t, (e) => { e.preventDefault(); zona.classList.add("arrastando"); }));
+["dragleave", "drop"].forEach((t) => zona.addEventListener(t, (e) => { e.preventDefault(); zona.classList.remove("arrastando"); }));
+zona.addEventListener("drop", (e) => escolher(e.dataTransfer.files[0]));
+
+function mostrarErro(msg) {
+  const el = $("#erro");
+  el.textContent = msg;
+  el.hidden = !msg;
+}
+
+$("#form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!arquivo) return mostrarErro("Escolha o PDF do seu currículo.");
+  if (!$("#aceite").checked) return mostrarErro("Para continuar, marque que concorda com o uso dos seus dados.");
+  const dados = new FormData();
+  dados.append("curriculo", arquivo);
+  dados.append("cidade", $("#cidade").value);
+  dados.append("cargos", $("#cargos").value);
+  dados.append("remoto", $("#remoto").checked ? "1" : "0");
+  dados.append("aceite", "1");
+  const botao = $("#botao");
+  botao.disabled = true; botao.textContent = "Enviando…"; mostrarErro("");
+  try {
+    const r = await fetch("/api/analisar", { method: "POST", body: dados });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.erro || "Não foi possível enviar agora. Tente de novo.");
+    $("#resultado").hidden = true;
+    $("#andamento").hidden = false;
+    marcarEtapa("perfil");
+    $("#andamento").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    acompanhar(j.id);
+  } catch (err) {
+    mostrarErro(err.message);
+    botao.disabled = false; botao.textContent = "Encontrar minhas vagas";
+  }
+});
+
+const ORDEM = ["perfil", "busca", "analise", "pronto"];
+function marcarEtapa(etapa, job) {
+  const i = ORDEM.indexOf(etapa === "inicio" ? "perfil" : etapa);
+  document.querySelectorAll("#passos li").forEach((li) => {
+    const k = ORDEM.indexOf(li.dataset.etapa);
+    li.className = k < i ? "feito" : k === i ? "atual" : "";
+  });
+  const [n, total] = job?.progresso || [0, 0];
+  $("#progresso").textContent = etapa === "analise" && total ? `${n} de ${total} vagas analisadas` : "";
+}
+
+function acompanhar(id) {
+  clearInterval(timer);
+  timer = setInterval(async () => {
+    try {
+      const r = await fetch(`/api/analisar/${id}`);
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.erro);
+      marcarEtapa(j.etapa, j);
+      if (j.etapa === "pronto" || j.etapa === "erro") {
+        clearInterval(timer);
+        terminar(j);
+      }
+    } catch (err) {
+      clearInterval(timer);
+      terminar({ etapa: "erro", erro: err.message || "Perdemos a conexão. Tente de novo." });
+    }
+  }, 1500);
+}
+
+function classe(n) { return n >= 85 ? "alta" : n >= 65 ? "boa" : "baixa"; }
+
+function terminar(j) {
+  const botao = $("#botao");
+  botao.disabled = false; botao.textContent = "Encontrar minhas vagas";
+  $("#andamento").hidden = true;
+  if (j.etapa === "erro") {
+    mostrarErro(j.erro);
+    $("#form").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+  const alvo = $("#resultado");
+  const cargos = j.perfil?.cargos || [];
+  const titulo = j.vagas.length ? (j.vagas.length === 1 ? "A vaga mais compatível com você" : `As ${j.vagas.length} vagas mais compatíveis com você`) : "Nenhuma vaga encontrada agora";
+  const onde = (v) => [v.empresa, v.cidade, v.remoto ? "remoto" : ""].filter(Boolean).map(esc).join(", ");
+  alvo.innerHTML = `
+    <h2>${titulo}</h2>
+    <div class="perfil">Buscamos por ${cargos.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}${j.cidade ? ` em ${esc(j.cidade)}` : " no Brasil todo"}, entre ${j.encontradas} ${j.encontradas === 1 ? "vaga aberta" : "vagas abertas"}.</div>
+    ${j.perfil?.resumo ? `<p class="resumo-ia">Como lemos o seu perfil: ${esc(j.perfil.resumo)}</p>` : ""}
+    ${j.vagas.length && !j.usou_ia ? `<div class="aviso">${j.ia_esgotada ? "O limite diário de análises com inteligência artificial acabou, então" : "Hoje"} as notas foram calculadas só por palavras-chave. Elas são menos precisas: confira os requisitos de cada vaga.</div>` : ""}
+    ${j.vagas.length ? `<div class="lista">${j.vagas.map((v) => `
+      <article class="vaga">
+        <div class="nota ${classe(v.nota)}"><b>${v.nota}</b><div class="medidor" aria-hidden="true"><i style="width:${v.nota}%"></i></div><small>de 100</small></div>
+        <div>
+          <h3>${esc(v.titulo)}</h3>
+          <div class="onde">${onde(v)}</div>
+          ${v.resumo ? `<p>${esc(v.resumo)}</p>` : ""}
+          ${v.pontos_fortes.length || v.lacunas.length ? `<div class="chips">${v.pontos_fortes.map((p) => `<span class="chip favor">${esc(p)}</span>`).join("")}${v.lacunas.map((p) => `<span class="chip falta">Falta: ${esc(p)}</span>`).join("")}</div>` : ""}
+        </div>
+        <div class="acao">${v.url ? `<a class="botao" href="${esc(v.url)}" target="_blank" rel="noopener">Ver vaga</a>` : ""}</div>
+      </article>`).join("")}</div>`
+    : j.encontradas
+      ? `<div class="vazio"><h3>Nenhuma vaga combina bem com o seu currículo agora</h3><p>Analisamos as ${j.encontradas} vagas abertas encontradas e nenhuma chegou a nota 50. Tente outros nomes de cargo, outra cidade ou incluir vagas remotas.</p></div>`
+      : `<div class="vazio"><h3>Não encontramos vagas abertas com esses filtros</h3><p>Nos últimos 30 dias não apareceram vagas desses cargos${j.cidade ? " nessa cidade" : ""}. Tente sem a cidade, incluindo vagas remotas, ou com outros nomes de cargo.</p></div>`}
+    ${j.vagas.length && j.abaixo ? `<p class="nota-pe" style="margin-top:12px">Outras ${j.abaixo} ${j.abaixo === 1 ? "vaga ficou" : "vagas ficaram"} de fora por terem nota abaixo de 50.</p>` : ""}
+    <div class="depois">
+      <button class="botao claro" type="button" id="de-novo">Buscar com outros cargos ou outra cidade</button>
+      <span class="nota-pe">Este resultado fica disponível por ${j.expira_em_min || 30} minutos. Seu currículo já foi descartado.</span>
+    </div>`;
+  alvo.hidden = false;
+  $("#de-novo").addEventListener("click", () => {
+    if (!$("#cargos").value && cargos.length) $("#cargos").value = cargos.join(", ");
+    $("#form").scrollIntoView({ behavior: "smooth" });
+    $("#cargos").focus();
+  });
+  alvo.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+</script>
+</body>
+</html>

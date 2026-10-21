@@ -1,0 +1,20 @@
+# Publicação do site no Render (render.com). Veja o README, seção "Publicar o site".
+services:
+  - type: web
+    name: vagas-para-o-seu-curriculo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-site.txt
+    startCommand: gunicorn "enviador.web:criar_app()" --workers 1 --threads 8 --timeout 180 --bind 0.0.0.0:$PORT
+    healthCheckPath: /saude
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false            # você cola a chave no painel do Render; ela não fica no GitHub
+      - key: ANALISES_POR_PESSOA_DIA
+        value: "3"
+      - key: ANALISES_IA_DIA
+        value: "50"
+      - key: VAGAS_COM_IA
+        value: "12"
+      - key: CONTATO_EMAIL
+        sync: false

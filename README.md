@@ -111,6 +111,37 @@ python -m enviador resultados       # o que avança e o que não avança
 python -m enviador diario           # roda a rotina diária agora
 ```
 
+## Site público (para qualquer pessoa, sem instalar nada)
+
+O projeto inclui um site gratuito e sem login: a pessoa envia o currículo em PDF, a IA descobre os
+cargos que combinam com ela, o site procura vagas abertas na Gupy e mostra as 10 mais compatíveis,
+com o motivo de cada nota e o link para se candidatar.
+
+- O currículo é lido em memória e descartado ao fim da análise; nada é gravado em disco.
+  O resultado fica disponível por 30 minutos. A política de privacidade está em `/privacidade`.
+- Limites para controlar o custo da IA: 3 análises por pessoa por dia e 50 análises com IA por dia no total.
+  Quando a cota de IA acaba, o site continua funcionando por palavras-chave e avisa a pessoa.
+- As buscas na Gupy ficam em cache por 1 hora, para não repetir a mesma consulta.
+
+Para testar no seu computador: `python -m enviador site` e abra http://127.0.0.1:8000
+
+### Publicar o site no Render (plano gratuito)
+
+1. Crie uma conta em render.com entrando com o GitHub e autorize o acesso ao repositório.
+2. No Render, clique em **New → Blueprint** e escolha o repositório `enviador-curriculos`.
+   Ele lê o arquivo `render.yaml` e já configura tudo.
+3. Preencha as variáveis pedidas: `ANTHROPIC_API_KEY` (a sua chave) e `CONTATO_EMAIL`
+   (aparece na política de privacidade). Clique em **Apply**.
+4. Em alguns minutos o site fica no ar num endereço como `https://vagas-para-o-seu-curriculo.onrender.com`.
+
+**Antes de divulgar:** defina um limite de gastos mensal na sua conta da Anthropic
+(console.anthropic.com → Billing). É a proteção mais importante contra uma conta surpresa.
+No plano gratuito do Render, o site "dorme" após 15 minutos sem visitas e leva cerca de um minuto
+para acordar no primeiro acesso. Os limites diários ficam em memória e zeram quando o site reinicia.
+
+Os limites podem ser ajustados nas variáveis de ambiente do Render: `ANALISES_POR_PESSOA_DIA`,
+`ANALISES_IA_DIA`, `VAGAS_COM_IA` (quantas vagas cada análise manda para a IA) e `MODELO_SITE`.
+
 ## Proteções
 
 - A candidatura por e-mail começa em **modo teste** (só mostra o que enviaria), com limite diário,

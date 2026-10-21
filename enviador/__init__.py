@@ -1,0 +1,1 @@
+"""Enviador automático de currículos."""

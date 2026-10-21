@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minhas vagas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fundo: #EEF1F4;
+  --superficie: #FFFFFF;
+  --tinta: #16212E;
+  --secundario: #5D6B7A;
+  --linha: #D5DBE2;
+  --cobalto: #2350C8;
+  --cobalto-claro: #E3EAFA;
+  --verde: #1E7A52;
+  --verde-claro: #E2F2EA;
+  --ambar: #A85A12;
+  --ambar-claro: #FBEEDD;
+  --vermelho: #A3261E;
+  --sombra: 0 1px 2px rgba(22, 33, 46, .06);
+  --raio: 8px;
+  --sans: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --cond: "Barlow Condensed", "Arial Narrow", var(--sans);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #10161E; --superficie: #18212C; --tinta: #E6EBF1; --secundario: #93A1B1;
+    --linha: #2A3644; --cobalto: #7EA0FF; --cobalto-claro: #1E2A47; --verde: #5CC796;
+    --verde-claro: #16302A; --ambar: #E8A35C; --ambar-claro: #3A2914; --vermelho: #F08A80;
+    --sombra: none; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--fundo); color: var(--tinta);
+  font: 400 16px/1.5 var(--sans);
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--cobalto); }
+:focus-visible { outline: 2px solid var(--cobalto); outline-offset: 2px; border-radius: 4px; }
+
+.casca { max-width: 1120px; margin: 0 auto; padding: 0 16px 64px; }
+
+/* topo */
+.topo {
+  display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end;
+  justify-content: space-between; padding: 28px 0 18px;
+}
+.topo h1 { font: 600 30px/1.1 var(--cond); margin: 0; letter-spacing: .005em; }
+.topo p { margin: 4px 0 0; color: var(--secundario); }
+.busca-agora { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.busca-agora .estado { color: var(--secundario); font-size: 14px; max-width: 360px; }
+
+/* botões */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--linha);
+  background: var(--superficie); border-radius: 6px; padding: 7px 12px; cursor: pointer;
+  font-weight: 500; font-size: 15px; text-decoration: none; color: var(--tinta); white-space: nowrap;
+}
+.btn:hover { border-color: var(--secundario); }
+.btn.primario { background: var(--cobalto); border-color: var(--cobalto); color: #fff; }
+.btn.primario:hover { filter: brightness(1.08); }
+@media (prefers-color-scheme: dark) { .btn.primario { color: #0E1420; } }
+.btn.sutil { border-color: transparent; background: transparent; color: var(--secundario); }
+.btn.sutil:hover { color: var(--tinta); background: var(--cobalto-claro); }
+.btn[disabled] { opacity: .55; cursor: progress; }
+
+/* abas */
+.abas { display: flex; gap: 2px; border-bottom: 1px solid var(--linha); overflow-x: auto; }
+.aba {
+  border: 0; background: none; padding: 10px 14px 11px; cursor: pointer; color: var(--secundario);
+  font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap;
+}
+.aba[aria-selected="true"] { color: var(--tinta); border-bottom-color: var(--cobalto); }
+.aba .n { font: 600 15px var(--cond); margin-left: 4px; color: var(--secundario); }
+.aba .n.alerta { color: var(--ambar); }
+
+/* ferramentas */
+.ferramentas { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 0; align-items: center; }
+.ferramentas input[type=search] {
+  flex: 1 1 240px; min-width: 0; padding: 8px 12px; border: 1px solid var(--linha);
+  border-radius: 6px; background: var(--superficie);
+}
+.ferramentas select { padding: 8px 10px; border: 1px solid var(--linha); border-radius: 6px; background: var(--superficie); }
+.ferramentas[hidden], .ferramentas [hidden] { display: none; }
+
+/* fila de vagas */
+.fila { background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); box-shadow: var(--sombra); }
+.vaga { border-top: 1px solid var(--linha); }
+.vaga:first-child { border-top: 0; }
+.vaga-linha {
+  display: grid; grid-template-columns: 76px 1fr auto; gap: 16px; padding: 16px 18px; align-items: start;
+}
+.nota { text-align: left; }
+.nota b { display: block; font: 600 38px/0.95 var(--cond); font-variant-numeric: tabular-nums; }
+.medidor { height: 4px; background: var(--linha); border-radius: 2px; margin-top: 7px; overflow: hidden; }
+.medidor i { display: block; height: 100%; background: currentColor; }
+.nota small { display: block; color: var(--secundario); font-size: 12px; margin-top: 5px; }
+.n-alta { color: var(--verde); } .n-boa { color: var(--cobalto); } .n-baixa { color: var(--secundario); }
+.info h3 { margin: 0; font: 600 18px/1.3 var(--sans); }
+.info .onde { color: var(--secundario); font-size: 15px; margin-top: 1px; }
+.info .por-que { margin: 6px 0 0; max-width: 68ch; }
+.etiqueta {
+  display: inline-block; font-size: 13px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+  background: var(--cobalto-claro); color: var(--cobalto); margin-left: 6px; vertical-align: 2px;
+}
+.etiqueta.depois { background: var(--ambar-claro); color: var(--ambar); }
+.acoes { display: flex; gap: 6px; flex-wrap: nowrap; justify-content: flex-end; }
+@media (max-width: 1000px) {
+  .vaga-linha { grid-template-columns: 76px 1fr; }
+  .acoes { grid-column: 2; justify-content: flex-start; flex-wrap: wrap; }
+}
+
+.detalhe { padding: 0 18px 18px 110px; display: grid; gap: 16px; }
+.detalhe[hidden] { display: none; }
+.grupo h4 { margin: 0 0 6px; font: 600 15px var(--sans); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 14px; padding: 2px 10px; border-radius: 999px; }
+.chip.favor { background: var(--verde-claro); color: var(--verde); }
+.chip.falta { background: var(--ambar-claro); color: var(--ambar); }
+.resposta { border: 1px solid var(--linha); border-radius: 6px; padding: 12px 14px; background: var(--fundo); }
+.resposta header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.resposta header strong { font-weight: 600; font-size: 15px; }
+.resposta p { margin: 0; white-space: pre-wrap; max-width: 75ch; }
+.resposta ul { margin: 0; padding-left: 18px; }
+.nota-rodape { color: var(--secundario); font-size: 14px; margin: 0; }
+
+/* candidaturas */
+.quadro { display: grid; grid-template-columns: repeat(6, minmax(170px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.coluna h3 { font: 600 16px var(--sans); margin: 0 0 8px; display: flex; justify-content: space-between; }
+.coluna h3 span { font: 600 16px var(--cond); color: var(--secundario); }
+.coluna .vazia { color: var(--secundario); font-size: 14px; padding: 8px 0; }
+.item {
+  background: var(--superficie); border: 1px solid var(--linha); border-radius: 6px; padding: 10px 12px;
+  margin-bottom: 8px; box-shadow: var(--sombra);
+}
+.item strong { display: block; font-weight: 600; font-size: 15px; line-height: 1.3; }
+.item .onde { color: var(--secundario); font-size: 14px; }
+.item .ha { font-size: 13px; color: var(--secundario); margin: 4px 0 8px; }
+.item .ha.parada { color: var(--ambar); font-weight: 500; }
+.item select { width: 100%; padding: 5px 6px; border: 1px solid var(--linha); border-radius: 5px; background: var(--superficie); font-size: 14px; }
+.item .links { display: flex; justify-content: space-between; margin-top: 6px; font-size: 14px; }
+.historico { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; color: var(--secundario); }
+.historico li { padding: 2px 0; }
+
+/* follow-up */
+.mensagem-modelo { background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); padding: 14px 16px; margin-bottom: 14px; }
+.mensagem-modelo p { margin: 6px 0 10px; max-width: 70ch; }
+
+/* raio-x */
+.raiox { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.painel-bloco { background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px 18px; }
+.painel-bloco h3 { margin: 0 0 2px; font: 600 18px var(--sans); }
+.painel-bloco > p { margin: 0 0 12px; color: var(--secundario); font-size: 15px; }
+.barra { display: grid; grid-template-columns: 1fr 44px; gap: 4px 10px; align-items: center; margin: 9px 0; }
+.barra span { font-size: 15px; }
+.barra b { font: 600 18px var(--cond); text-align: right; font-variant-numeric: tabular-nums; }
+.barra i { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--linha); position: relative; overflow: hidden; }
+.barra i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); background: var(--cor); border-radius: 3px; }
+.barra small { grid-column: 1 / -1; color: var(--secundario); font-size: 13px; margin-top: -2px; }
+
+/* vazio, aviso, toast */
+.vazio { text-align: left; padding: 40px 24px; background: var(--superficie); border: 1px dashed var(--linha); border-radius: var(--raio); }
+.vazio h3 { margin: 0 0 4px; font: 600 20px var(--sans); }
+.vazio p { margin: 0 0 14px; color: var(--secundario); max-width: 60ch; }
+.toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(20px); opacity: 0;
+  background: var(--tinta); color: var(--fundo); padding: 10px 14px; border-radius: 8px; display: flex;
+  gap: 14px; align-items: center; transition: opacity .18s, transform .18s; pointer-events: none; max-width: calc(100% - 32px);
+}
+.toast.visivel { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+.toast button { background: none; border: 0; color: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+@media (max-width: 760px) {
+  .vaga-linha { grid-template-columns: 56px 1fr; gap: 12px; padding: 14px; }
+  .nota b { font-size: 30px; }
+  .acoes { grid-column: 1 / -1; justify-content: flex-start; }
+  .detalhe { padding: 0 14px 16px; }
+  .raiox { grid-template-columns: 1fr; }
+  .quadro { grid-template-columns: 1fr; overflow: visible; }
+  .topo h1 { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div class="casca">
+  <header class="topo">
+    <div>
+      <h1>Minhas vagas</h1>
+      <p id="subtitulo">Carregando…</p>
+    </div>
+    <div class="busca-agora">
+      <button class="btn primario" id="btn-buscar" type="button">Buscar vagas agora</button>
+      <span class="estado" id="estado-busca" role="status" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <nav class="abas" role="tablist" aria-label="Seções">
+    <button class="aba" role="tab" data-aba="fila" aria-selected="true">Para decidir <span class="n" id="n-fila"></span></button>
+    <button class="aba" role="tab" data-aba="candidaturas" aria-selected="false">Candidaturas <span class="n" id="n-candidaturas"></span></button>
+    <button class="aba" role="tab" data-aba="followup" aria-selected="false">Follow-up <span class="n" id="n-followup"></span></button>
+    <button class="aba" role="tab" data-aba="raiox" aria-selected="false">Raio-x do mercado</button>
+    <button class="aba" role="tab" data-aba="descartadas" aria-selected="false">Descartadas <span class="n" id="n-descartadas"></span></button>
+  </nav>
+
+  <div class="ferramentas" id="ferramentas">
+    <input type="search" id="filtro-texto" placeholder="Filtrar por cargo, empresa ou cidade" aria-label="Filtrar vagas">
+    <select id="filtro-nota" aria-label="Nota mínima">
+      <option value="0">Qualquer nota</option>
+      <option value="65">Nota 65 ou mais</option>
+      <option value="75">Nota 75 ou mais</option>
+      <option value="85">Nota 85 ou mais</option>
+    </select>
+  </div>
+
+  <main id="conteudo" tabindex="-1"></main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-texto"></span><button type="button" id="toast-desfazer" hidden>Desfazer</button></div>
+
+<script>
+const estado = { aba: "fila", resumo: null, timerBusca: null };
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+async function api(caminho, opcoes = {}) {
+  const r = await fetch(caminho, {
+    headers: { "Content-Type": "application/json" }, ...opcoes,
+    body: opcoes.body ? JSON.stringify(opcoes.body) : undefined,
+  });
+  const dados = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(dados.erro || `Erro ${r.status}`);
+  return dados;
+}
+
+function dias(iso) {
+  if (!iso) return 0;
+  return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
+}
+function haDias(iso) {
+  const d = dias(iso);
+  return d === 0 ? "hoje" : d === 1 ? "há 1 dia" : `há ${d} dias`;
+}
+function classeNota(n) {
+  const min = estado.resumo?.nota_minima ?? 65;
+  return n >= 85 ? "n-alta" : n >= min ? "n-boa" : "n-baixa";
+}
+function onde(v) {
+  return [v.empresa, v.cidade, v.remoto ? "remoto" : ""].filter(Boolean).map(esc).join(", ");
+}
+
+/* ---------- toast ---------- */
+let timerToast;
+function avisar(texto, desfazer) {
+  const t = $("#toast"), b = $("#toast-desfazer");
+  $("#toast-texto").textContent = texto;
+  b.hidden = !desfazer;
+  b.onclick = async () => { t.classList.remove("visivel"); await desfazer(); };
+  t.classList.add("visivel");
+  clearTimeout(timerToast);
+  timerToast = setTimeout(() => t.classList.remove("visivel"), desfazer ? 6000 : 3000);
+}
+
+/* ---------- resumo e abas ---------- */
+async function carregarResumo() {
+  const r = await api("/api/resumo");
+  estado.resumo = r;
+  $("#n-fila").textContent = r.fila || "";
+  $("#n-candidaturas").textContent = r.candidaturas || "";
+  const nf = $("#n-followup");
+  nf.textContent = r.followups || "";
+  nf.classList.toggle("alerta", r.followups > 0);
+  $("#n-descartadas").textContent = r.descartadas || "";
+  const partes = [];
+  partes.push(r.fila === 1 ? "1 vaga para decidir" : `${r.fila} vagas para decidir`);
+  partes.push(r.ativas === 1 ? "1 candidatura em andamento" : `${r.ativas} candidaturas em andamento`);
+  if (r.followups) partes.push(r.followups === 1 ? "1 pedindo follow-up" : `${r.followups} pedindo follow-up`);
+  $("#subtitulo").textContent = partes.join(", ") + ".";
+  mostrarBusca(r.busca);
+}
+
+function trocarAba(aba) {
+  estado.aba = aba;
+  document.querySelectorAll(".aba").forEach((b) => b.setAttribute("aria-selected", b.dataset.aba === aba));
+  const comFiltro = ["fila", "candidaturas", "descartadas"].includes(aba);
+  $("#ferramentas").hidden = !comFiltro;
+  $("#filtro-nota").hidden = aba === "candidaturas";
+  renderizar();
+}
+
+async function renderizar() {
+  const alvo = $("#conteudo");
+  try {
+    if (estado.aba === "raiox") return renderRaiox(alvo, await api("/api/raiox"));
+    const q = encodeURIComponent($("#filtro-texto").value);
+    const nota = $("#filtro-nota").value;
+    const vagas = await api(`/api/vagas?aba=${estado.aba}&q=${q}&nota_min=${nota}`);
+    if (estado.aba === "candidaturas") return renderQuadro(alvo, vagas);
+    if (estado.aba === "followup") return renderFollowup(alvo, vagas);
+    renderFila(alvo, vagas, estado.aba === "descartadas");
+  } catch (e) {
+    alvo.innerHTML = `<div class="vazio"><h3>Não consegui carregar esta seção</h3><p>${esc(e.message)}. Confira se a janela do terminal com o painel continua aberta.</p></div>`;
+  }
+}
+
+/* ---------- fila ---------- */
+function renderFila(alvo, vagas, descartadas) {
+  if (!vagas.length) {
+    alvo.innerHTML = descartadas
+      ? `<div class="vazio"><h3>Nenhuma vaga descartada</h3><p>Vagas com nota baixa e as que você descartar aparecem aqui, caso queira rever alguma.</p></div>`
+      : `<div class="vazio"><h3>Nenhuma vaga para decidir</h3><p>Busque vagas novas agora ou espere a rotina diária. As recomendadas para o seu perfil aparecem aqui, das mais compatíveis para as menos.</p><button class="btn primario" type="button" onclick="buscarAgora()">Buscar vagas agora</button></div>`;
+    return;
+  }
+  alvo.innerHTML = `<div class="fila">${vagas.map((v) => linhaVaga(v, descartadas)).join("")}</div>`;
+}
+
+function linhaVaga(v, descartada) {
+  const n = v.nota ?? 0;
+  const acoes = descartada
+    ? `<button class="btn" type="button" data-acao="status" data-status="nova">Trazer de volta</button>`
+    : `${v.url ? `<a class="btn primario" href="${esc(v.url)}" target="_blank" rel="noopener">Abrir vaga</a>` : ""}
+       <button class="btn" type="button" data-acao="status" data-status="candidatei">Candidatei</button>
+       ${v.status === "depois" ? "" : `<button class="btn sutil" type="button" data-acao="status" data-status="depois">Depois</button>`}
+       <button class="btn sutil" type="button" data-acao="status" data-status="descartada">Descartar</button>`;
+  return `
+  <article class="vaga" data-id="${v.id}">
+    <div class="vaga-linha">
+      <div class="nota ${classeNota(n)}" title="Compatibilidade com o seu currículo">
+        <b>${n}</b><div class="medidor" aria-hidden="true"><i style="width:${n}%"></i></div>
+        <small>${v.metodo === "ia" ? "análise IA" : "por palavras"}</small>
+      </div>
+      <div class="info">
+        <h3>${esc(v.titulo)}${v.status === "depois" ? `<span class="etiqueta depois">adiada</span>` : ""}${v.email ? `<span class="etiqueta">aceita e-mail</span>` : ""}</h3>
+        <div class="onde">${onde(v)}</div>
+        ${v.resumo ? `<p class="por-que">${esc(v.resumo)}</p>` : ""}
+        <button class="btn sutil" type="button" data-acao="detalhe" aria-expanded="false" style="margin:6px 0 0 -12px">Ver análise e respostas</button>
+      </div>
+      <div class="acoes">${acoes}</div>
+    </div>
+    <div class="detalhe" hidden></div>
+  </article>`;
+}
+
+async function abrirDetalhe(artigo, botao) {
+  const caixa = $(".detalhe", artigo);
+  const aberto = botao.getAttribute("aria-expanded") === "true";
+  botao.setAttribute("aria-expanded", !aberto);
+  botao.textContent = aberto ? "Ver análise e respostas" : "Fechar análise";
+  caixa.hidden = aberto;
+  if (aberto || caixa.dataset.carregado) return;
+  const v = await api(`/api/vagas/${artigo.dataset.id}`);
+  caixa.dataset.carregado = "1";
+  caixa.innerHTML = `
+    ${v.pontos_fortes.length ? `<div class="grupo"><h4>A seu favor</h4><div class="chips">${v.pontos_fortes.map((p) => `<span class="chip favor">${esc(p)}</span>`).join("")}</div></div>` : ""}
+    ${v.lacunas.length ? `<div class="grupo"><h4>O que a vaga pede e você não mostra</h4><div class="chips">${v.lacunas.map((p) => `<span class="chip falta">${esc(p)}</span>`).join("")}</div></div>` : ""}
+    <div class="grupo respostas">
+      <h4>Respostas para o formulário</h4>
+      <div class="area-respostas">
+        ${v.tem_respostas ? "" : `<p class="nota-rodape" style="margin-bottom:8px">Preparo textos para "fale sobre você" e "por que esta vaga", com base no seu currículo.</p>`}
+        <button class="btn" type="button" data-acao="respostas">${v.tem_respostas ? "Mostrar respostas" : "Preparar respostas"}</button>
+      </div>
+    </div>
+    ${v.metodo !== "ia" ? `<p class="nota-rodape">Nota calculada por palavras-chave. Com a chave da Anthropic configurada, a análise lê os requisitos de verdade e explica a nota.</p>` : ""}`;
+}
+
+async function carregarRespostas(artigo, botao) {
+  botao.disabled = true;
+  botao.textContent = "Preparando…";
+  try {
+    const r = await api(`/api/vagas/${artigo.dataset.id}/respostas`);
+    const bloco = (titulo, texto) => `<div class="resposta"><header><strong>${titulo}</strong><button class="btn sutil" type="button" data-copiar>Copiar</button></header><p>${esc(texto)}</p></div>`;
+    botao.closest(".area-respostas").innerHTML = `<div style="display:grid;gap:10px">
+      ${bloco("Fale sobre você", r.apresentacao)}
+      ${bloco("Por que você quer esta vaga?", r.por_que_vaga)}
+      ${r.destaques?.length ? `<div class="resposta"><header><strong>Experiências para mencionar</strong></header><ul>${r.destaques.map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div>` : ""}
+      ${r.atencao?.length ? `<div class="resposta"><header><strong>Prepare-se para falar sobre</strong></header><ul>${r.atencao.map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div>` : ""}
+      <p class="nota-rodape">Revise antes de enviar: a candidatura vai em seu nome.</p></div>`;
+  } catch (e) {
+    botao.disabled = false;
+    botao.textContent = "Tentar de novo";
+    avisar(e.message);
+  }
+}
+
+async function mudarStatus(artigo, status) {
+  const id = artigo.dataset.id;
+  const antes = await api(`/api/vagas/${id}`);
+  await api(`/api/vagas/${id}/status`, { method: "POST", body: { status } });
+  const nomes = { candidatei: "Marcada como candidatura feita", depois: "Adiada para depois", descartada: "Vaga descartada", nova: "Vaga de volta para decidir" };
+  artigo.remove();
+  if (!$(".vaga")) renderizar();
+  await carregarResumo();
+  avisar(nomes[status], antes.status !== status ? async () => {
+    await api(`/api/vagas/${id}/status`, { method: "POST", body: { status: antes.status === "baixa" ? "descartada" : antes.status } });
+    await carregarResumo(); renderizar();
+  } : null);
+}
+
+/* ---------- candidaturas ---------- */
+function renderQuadro(alvo, vagas) {
+  if (!vagas.length) {
+    alvo.innerHTML = `<div class="vazio"><h3>Nenhuma candidatura ainda</h3><p>Quando você marcar "Candidatei" numa vaga, ela aparece aqui para você acompanhar cada etapa até a resposta.</p><button class="btn" type="button" onclick="trocarAba('fila')">Ver vagas para decidir</button></div>`;
+    return;
+  }
+  const nomes = estado.resumo.nomes_etapas;
+  const encerradas = ["aprovado", "reprovado", "sem_resposta", "desisti"];
+  const colunas = [...estado.resumo.etapas_ativas.map((e) => [e, nomes[e]]), ["encerradas", "Encerradas"]];
+  const limite = estado.resumo.dias_followup;
+  const opcoes = (atual) => Object.entries(nomes).map(([k, n]) => `<option value="${k}" ${k === atual ? "selected" : ""}>${esc(n)}</option>`).join("");
+  alvo.innerHTML = `<div class="quadro">${colunas.map(([chave, nome]) => {
+    const itens = vagas.filter((v) => chave === "encerradas" ? encerradas.includes(v.etapa) : v.etapa === chave);
+    return `<section class="coluna" aria-label="${esc(nome)}"><h3>${esc(nome)} <span>${itens.length || ""}</span></h3>
+      ${itens.length ? itens.map((v) => {
+        const parada = !encerradas.includes(v.etapa) && dias(v.etapa_em) >= limite;
+        return `<div class="item" data-id="${v.id}">
+          <strong>${esc(v.titulo)}</strong><div class="onde">${esc(v.empresa || "")}</div>
+          <div class="ha ${parada ? "parada" : ""}">${chave === "encerradas" ? esc(nomes[v.etapa]) + ", " : ""}${haDias(v.etapa_em)}${parada ? ", sem novidade" : ""}</div>
+          <label class="sr" style="position:absolute;left:-9999px" for="etapa-${v.id}">Etapa</label>
+          <select id="etapa-${v.id}" data-acao="etapa">${opcoes(v.etapa)}</select>
+          <div class="links">${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">Abrir vaga</a>` : "<span></span>"}<button class="btn sutil" type="button" data-acao="historico" style="padding:0 4px">Histórico</button></div>
+        </div>`;
+      }).join("") : `<div class="vazia">Nada aqui.</div>`}
+    </section>`;
+  }).join("")}</div>`;
+}
+
+async function mudarEtapa(item, etapa) {
+  let obs = "";
+  if (["entrevista", "teste", "proposta"].includes(etapa)) {
+    obs = prompt("Quer anotar algo? Por exemplo, data e horário da entrevista.", "") || "";
+  }
+  await api(`/api/vagas/${item.dataset.id}/etapa`, { method: "POST", body: { etapa, obs } });
+  avisar(`Etapa atualizada: ${estado.resumo.nomes_etapas[etapa]}`);
+  await carregarResumo();
+  renderizar();
+}
+
+async function mostrarHistorico(item, botao) {
+  const existente = $(".historico", item);
+  if (existente) { existente.remove(); return; }
+  const v = await api(`/api/vagas/${item.dataset.id}`);
+  const lista = document.createElement("ul");
+  lista.className = "historico";
+  lista.innerHTML = v.historico.map((h) => `<li>${new Date(h.data).toLocaleDateString("pt-BR")}: ${esc(h.nome)}${h.obs ? ` (${esc(h.obs)})` : ""}</li>`).join("") || "<li>Sem registros.</li>";
+  item.appendChild(lista);
+}
+
+/* ---------- follow-up ---------- */
+function renderFollowup(alvo, vagas) {
+  const limite = estado.resumo.dias_followup;
+  if (!vagas.length) {
+    alvo.innerHTML = `<div class="vazio"><h3>Nenhuma candidatura parada</h3><p>Quando uma empresa ficar ${limite} dias sem dar retorno, ela aparece aqui com uma sugestão de mensagem para o recrutador.</p></div>`;
+    return;
+  }
+  const modelo = (v) => `Olá! Me candidatei à vaga de ${v.titulo} ${v.empresa ? `na empresa ${v.empresa}` : ""} e continuo muito interessado. Gostaria de saber se há novidades sobre o processo seletivo. Obrigado pela atenção!`;
+  alvo.innerHTML = `<p class="nota-rodape" style="margin:16px 0 12px">Sem retorno há ${limite} dias ou mais. Um contato curto e educado com o recrutador, pelo LinkedIn ou por e-mail, mostra interesse e às vezes destrava o processo.</p>
+    ${vagas.map((v) => `<div class="mensagem-modelo" data-id="${v.id}">
+      <strong>${esc(v.titulo)}</strong> <span class="onde" style="color:var(--secundario)">${esc(v.empresa || "")}, ${esc(estado.resumo.nomes_etapas[v.etapa] || "")} ${haDias(v.etapa_em)}</span>
+      <p>${esc(modelo(v))}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" type="button" data-copiar-texto="${esc(modelo(v))}">Copiar mensagem</button>
+        <button class="btn primario" type="button" data-acao="followup">Registrar follow-up</button>
+        ${v.url ? `<a class="btn sutil" href="${esc(v.url)}" target="_blank" rel="noopener">Abrir vaga</a>` : ""}
+      </div></div>`).join("")}`;
+}
+
+/* ---------- raio-x ---------- */
+function renderRaiox(alvo, r) {
+  if (r.erro) { alvo.innerHTML = `<div class="vazio"><h3>Não consegui montar o raio-x</h3><p>${esc(r.erro)}</p></div>`; return; }
+  if (!r.total_area) {
+    alvo.innerHTML = `<div class="vazio"><h3>Ainda sem dados suficientes</h3><p>O raio-x junta o que as vagas da sua área pedem. Faça algumas buscas e ele começa a mostrar tendências.</p><button class="btn primario" type="button" onclick="buscarAgora()">Buscar vagas agora</button></div>`;
+    return;
+  }
+  const barras = (itens, cor, quase) => itens.map((i) => `<div class="barra" style="--p:${i.percentual}%;--cor:${cor}">
+      <span>${esc(i.habilidade)}</span><b>${i.percentual}%</b><i></i>
+      ${quase && i.em_quase ? `<small>Pedido em ${i.em_quase} de ${r.total_quase} vagas perto da sua nota de corte</small>` : ""}</div>`).join("");
+  alvo.innerHTML = `
+    <p class="nota-rodape" style="margin:16px 0 14px">Baseado em ${r.total_area} vagas da sua área. A porcentagem mostra em quantas delas o termo aparece: é tendência, não requisito obrigatório.</p>
+    <div class="raiox">
+      <section class="painel-bloco">
+        <h3>Pedem e falta no seu currículo</h3>
+        <p>Bons candidatos a estudo, curso ou certificação. Se você já tem, acrescente no currículo.</p>
+        ${r.faltam.length ? barras(r.faltam, "var(--ambar)", true) : "<p>Seu currículo cobre o que mais aparece. Ótimo sinal.</p>"}
+      </section>
+      <section class="painel-bloco">
+        <h3>Você já tem e é muito pedido</h3>
+        <p>Deixe em destaque no topo do currículo e nas entrevistas.</p>
+        ${barras(r.tenho, "var(--verde)")}
+      </section>
+      ${r.lacunas_ia.length ? `<section class="painel-bloco" style="grid-column:1/-1">
+        <h3>Lacunas mais apontadas pela análise com IA</h3>
+        <p>Inclui requisitos que não são ferramentas, como tempo de experiência e formação.</p>
+        <div class="chips">${r.lacunas_ia.map(([l, n]) => `<span class="chip falta">${esc(l)} (${n})</span>`).join("")}</div>
+      </section>` : !r.usou_ia ? `<p class="nota-rodape" style="grid-column:1/-1">Com a chave da Anthropic configurada, o raio-x também mostra as lacunas que a IA aponta em cada vaga, como tempo de experiência e nível de inglês.</p>` : ""}
+    </div>`;
+}
+
+/* ---------- busca ---------- */
+function mostrarBusca(b) {
+  const botao = $("#btn-buscar");
+  botao.disabled = b.rodando;
+  botao.textContent = b.rodando ? "Buscando…" : "Buscar vagas agora";
+  $("#estado-busca").textContent = b.rodando ? "Isso leva de um a alguns minutos." : (b.mensagem || "");
+}
+async function buscarAgora() {
+  mostrarBusca(await api("/api/buscar", { method: "POST" }));
+  clearInterval(estado.timerBusca);
+  estado.timerBusca = setInterval(async () => {
+    const r = await api("/api/resumo");
+    mostrarBusca(r.busca);
+    if (!r.busca.rodando) {
+      clearInterval(estado.timerBusca);
+      await carregarResumo();
+      if (estado.aba === "fila" || estado.aba === "raiox") renderizar();
+    }
+  }, 3000);
+}
+
+/* ---------- eventos ---------- */
+async function copiar(texto, botao) {
+  try { await navigator.clipboard.writeText(texto); } catch { const t = document.createElement("textarea"); t.value = texto; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
+  const antes = botao.textContent;
+  botao.textContent = "Copiado";
+  setTimeout(() => (botao.textContent = antes), 1600);
+}
+
+document.addEventListener("click", async (ev) => {
+  const el = ev.target.closest("button");
+  if (!el) return;
+  if (el.classList.contains("aba")) return trocarAba(el.dataset.aba);
+  if (el.id === "btn-buscar") return buscarAgora();
+  if (el.hasAttribute("data-copiar")) return copiar($("p", el.closest(".resposta")).textContent, el);
+  if (el.dataset.copiarTexto) return copiar(el.dataset.copiarTexto, el);
+  const artigo = el.closest(".vaga"), item = el.closest(".item"), msg = el.closest(".mensagem-modelo");
+  try {
+    if (el.dataset.acao === "detalhe") return await abrirDetalhe(artigo, el);
+    if (el.dataset.acao === "respostas") return await carregarRespostas(artigo, el);
+    if (el.dataset.acao === "status") return await mudarStatus(artigo, el.dataset.status);
+    if (el.dataset.acao === "historico") return await mostrarHistorico(item, el);
+    if (el.dataset.acao === "followup") {
+      await api(`/api/vagas/${msg.dataset.id}/followup`, { method: "POST" });
+      avisar("Follow-up registrado. O lembrete volta se continuar sem resposta.");
+      await carregarResumo(); return renderizar();
+    }
+  } catch (e) { avisar(e.message); }
+});
+document.addEventListener("change", (ev) => {
+  if (ev.target.dataset.acao === "etapa") mudarEtapa(ev.target.closest(".item"), ev.target.value).catch((e) => avisar(e.message));
+});
+let timerFiltro;
+$("#filtro-texto").addEventListener("input", () => { clearTimeout(timerFiltro); timerFiltro = setTimeout(renderizar, 250); });
+$("#filtro-nota").addEventListener("change", renderizar);
+
+carregarResumo().then(() => { trocarAba("fila"); if (estado.resumo.busca.rodando) buscarAgora(); })
+  .catch((e) => { $("#conteudo").innerHTML = `<div class="vazio"><h3>O painel não respondeu</h3><p>${esc(e.message)}. Rode <code>python -m enviador painel</code> de novo no terminal.</p></div>`; });
+</script>
+</body>
+</html>

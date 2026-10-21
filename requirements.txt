@@ -1,0 +1,6 @@
+requests>=2.31
+PyYAML>=6.0
+pypdf>=4.0
+# Opcional: mensagens personalizadas com IA
+anthropic>=0.40
+Flask>=3.0

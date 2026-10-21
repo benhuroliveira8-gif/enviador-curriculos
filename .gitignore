@@ -1,0 +1,10 @@
+config.yaml
+historico.db
+curriculo.pdf
+.venv/
+__pycache__/
+candidaturas/
+relatorios/
+logs/
+.pytest_cache/
+*.zip

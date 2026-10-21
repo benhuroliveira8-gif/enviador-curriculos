@@ -73,7 +73,9 @@ def buscar_github(config: dict, palavras: list[str]) -> list[Vaga]:
     if busca.get("github_token"):
         headers["Authorization"] = f"Bearer {busca['github_token']}"
     vagas = []
-    for repo in busca.get("repositorios_github", []):
+    # aceita a lista no nível de `busca` ou, como em configs antigos, dentro de `busca.fontes`
+    repos = busca.get("repositorios_github") or (busca.get("fontes") or {}).get("repositorios_github") or []
+    for repo in repos:
         try:
             r = requests.get(f"https://api.github.com/repos/{repo}/issues",
                              params={"state": "open", "per_page": 100},

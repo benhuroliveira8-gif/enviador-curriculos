@@ -11,76 +11,147 @@ import json
 import re
 import unicodedata
 
-# nome exibido -> padrões (expressões regulares sobre texto minúsculo e sem acento)
-CATALOGO: dict[str, list[str]] = {
-    # Sistemas operacionais e servidores
-    "Windows Server": [r"windows server"],
-    "Windows 10/11": [r"windows 1[01]\b", r"\bwindows\b(?! server)"],
-    "Linux": [r"\blinux\b", r"\bubuntu\b", r"\bcentos\b", r"\bdebian\b", r"red ?hat"],
-    "macOS": [r"\bmac ?os\b"],
-    "Active Directory": [r"active directory", r"\bad\b(?= ?/| e | ou |,)", r"\bgpo"],
-    "Azure AD / Entra ID": [r"azure ad\b", r"entra id"],
-    "Microsoft 365": [r"office ?365", r"microsoft ?365", r"\bm365\b", r"exchange online", r"sharepoint", r"\bteams\b"],
-    "Exchange": [r"\bexchange\b"],
-    "Intune / SCCM": [r"\bintune\b", r"\bsccm\b", r"\bmecm\b", r"endpoint manager"],
-    "Virtualização (VMware/Hyper-V)": [r"vmware", r"vsphere", r"esxi", r"hyper-?v", r"proxmox", r"virtualiza"],
-    "Backup (Veeam etc.)": [r"\bveeam\b", r"\bbackup"],
-    # Nuvem
-    "AWS": [r"\baws\b", r"amazon web services"],
-    "Azure": [r"\bazure\b"],
-    "Google Cloud": [r"google cloud", r"\bgcp\b"],
-    # Redes e segurança
-    "Redes TCP/IP": [r"tcp/?ip", r"\bredes\b", r"\bdns\b", r"\bdhcp\b", r"roteador"],
-    "Cisco": [r"\bcisco\b"],
-    "Certificação CCNA": [r"\bccna\b"],
-    "MikroTik": [r"mikrotik"],
-    "Firewall": [r"firewall", r"fortinet", r"fortigate", r"pfsense", r"palo alto", r"sophos"],
-    "VPN": [r"\bvpn\b"],
-    "Switches / VLAN": [r"\bswitch", r"\bvlan"],
-    "Wi-Fi": [r"wi-?fi", r"wireless", r"access point"],
-    "Segurança da informação": [r"seguranca da informacao", r"ciberseguranca", r"\bsiem\b", r"antivirus", r"\bedr\b"],
-    "Cabeamento estruturado": [r"cabeamento", r"crimpagem", r"patch panel"],
-    "Fibra óptica / FTTH": [r"\bftth\b", r"fibra optica", r"\bgpon\b", r"\bolt\b", r"\bonu\b"],
-    "VoIP / PABX": [r"\bvoip\b", r"\bpabx\b", r"asterisk", r"telefonia"],
-    # Monitoramento e observabilidade
-    "Zabbix": [r"zabbix"],
-    "Grafana": [r"grafana"],
-    "Datadog": [r"datadog"],
-    "Nagios / PRTG": [r"nagios", r"\bprtg\b"],
-    # ITSM
-    "ITIL": [r"\bitil\b"],
-    "GLPI": [r"\bglpi\b"],
-    "ServiceNow": [r"servicenow"],
-    "Jira": [r"\bjira\b"],
-    "Gestão de chamados": [r"chamados", r"tickets?\b", r"service ?desk", r"help ?desk"],
-    "SLA / indicadores": [r"\bsla\b", r"indicadores", r"\bkpi"],
-    # Suporte
-    "Hardware / manutenção": [r"hardware", r"manutencao (?:preventiva|corretiva)", r"montagem de (?:micro|computador)"],
-    "Impressoras": [r"impressora"],
-    "Acesso remoto": [r"anydesk", r"teamviewer", r"acesso remoto", r"suporte remoto"],
-    "PDV / TEF": [r"\bpdv\b", r"\btef\b", r"ponto de venda"],
-    "Inventário de ativos": [r"inventario", r"gestao de ativos"],
-    # Dados e programação
-    "SQL": [r"\bsql\b"],
-    "Oracle": [r"\boracle\b"],
-    "PostgreSQL / MySQL": [r"postgres", r"mysql"],
-    "SQL Server": [r"sql server"],
-    "PowerShell": [r"powershell"],
-    "Shell Script / Bash": [r"shell ?script", r"\bbash\b"],
-    "Python": [r"\bpython\b"],
-    "Docker / containers": [r"\bdocker\b", r"container", r"kubernetes", r"\bk8s\b"],
-    "Git": [r"\bgit\b", r"github", r"gitlab"],
-    "Power BI": [r"power ?bi"],
-    "Excel avançado": [r"excel avancado", r"excel intermediario", r"\bexcel\b"],
-    "ERP (SAP/TOTVS)": [r"\bsap\b", r"\btotvs\b", r"protheus", r"\berp\b"],
-    # Requisitos gerais
-    "Ensino superior (cursando/completo)": [r"superior (?:completo|cursando|em andamento)", r"graduacao", r"tecnologo", r"bacharel"],
-    "Curso técnico": [r"curso tecnico", r"tecnico em informatica"],
-    "Inglês": [r"\bingles\b", r"\benglish\b"],
-    "Espanhol": [r"espanhol"],
-    "CNH / disponibilidade para viagens": [r"\bcnh\b", r"disponibilidade para viag", r"veiculo proprio"],
-    "Plantão / escala": [r"plantao", r"plantoes", r"escala 12x36", r"\b12x36\b", r"sobreaviso", r"24x7"],
+# Catálogo por área: nome exibido -> padrões (expressões regulares sobre texto minúsculo e sem acento).
+# A área "geral" vale para todas. Em `raiox.areas` no config dá para limitar, ex.: ["ti", "administrativo"].
+AREAS: dict[str, dict[str, list[str]]] = {
+    "ti": {
+        "Windows Server": [r"windows server"],
+        "Windows 10/11": [r"windows 1[01]\b", r"\bwindows\b(?! server)"],
+        "Linux": [r"\blinux\b", r"\bubuntu\b", r"\bcentos\b", r"\bdebian\b", r"red ?hat"],
+        "macOS": [r"\bmac ?os\b"],
+        "Active Directory": [r"active directory", r"\bad\b(?= ?/| e | ou |,)", r"\bgpo"],
+        "Azure AD / Entra ID": [r"azure ad\b", r"entra id"],
+        "Microsoft 365": [r"office ?365", r"microsoft ?365", r"\bm365\b", r"exchange online", r"sharepoint", r"\bteams\b"],
+        "Exchange": [r"\bexchange\b"],
+        "Intune / SCCM": [r"\bintune\b", r"\bsccm\b", r"\bmecm\b", r"endpoint manager"],
+        "Virtualização (VMware/Hyper-V)": [r"vmware", r"vsphere", r"esxi", r"hyper-?v", r"proxmox", r"virtualiza"],
+        "Backup (Veeam etc.)": [r"\bveeam\b", r"\bbackup"],
+        "AWS": [r"\baws\b", r"amazon web services"],
+        "Azure": [r"\bazure\b"],
+        "Google Cloud": [r"google cloud", r"\bgcp\b"],
+        "Redes TCP/IP": [r"tcp/?ip", r"\bredes\b", r"\bdns\b", r"\bdhcp\b", r"roteador"],
+        "Cisco": [r"\bcisco\b"],
+        "Certificação CCNA": [r"\bccna\b"],
+        "MikroTik": [r"mikrotik"],
+        "Firewall": [r"firewall", r"fortinet", r"fortigate", r"pfsense", r"palo alto", r"sophos"],
+        "VPN": [r"\bvpn\b"],
+        "Switches / VLAN": [r"\bswitch", r"\bvlan"],
+        "Wi-Fi": [r"wi-?fi", r"wireless", r"access point"],
+        "Segurança da informação": [r"seguranca da informacao", r"ciberseguranca", r"\bsiem\b", r"antivirus", r"\bedr\b"],
+        "Cabeamento estruturado": [r"cabeamento", r"crimpagem", r"patch panel"],
+        "Fibra óptica / FTTH": [r"\bftth\b", r"fibra optica", r"\bgpon\b", r"\bolt\b", r"\bonu\b"],
+        "VoIP / PABX": [r"\bvoip\b", r"\bpabx\b", r"asterisk", r"telefonia"],
+        "Zabbix": [r"zabbix"],
+        "Grafana": [r"grafana"],
+        "Datadog": [r"datadog"],
+        "Nagios / PRTG": [r"nagios", r"\bprtg\b"],
+        "ITIL": [r"\bitil\b"],
+        "GLPI": [r"\bglpi\b"],
+        "ServiceNow": [r"servicenow"],
+        "Jira": [r"\bjira\b"],
+        "Gestão de chamados": [r"chamados", r"tickets?\b", r"service ?desk", r"help ?desk"],
+        "SLA / indicadores": [r"\bsla\b", r"indicadores", r"\bkpi"],
+        "Hardware / manutenção": [r"hardware", r"manutencao (?:preventiva|corretiva) de (?:computador|equipamento|micro)",
+                                  r"montagem de (?:micro|computador)", r"manutencao de (?:computador|micro|notebook)"],
+        "Impressoras": [r"impressora"],
+        "Acesso remoto": [r"anydesk", r"teamviewer", r"acesso remoto", r"suporte remoto"],
+        "PDV / TEF": [r"\bpdv\b", r"\btef\b", r"ponto de venda"],
+        "Inventário de ativos": [r"inventario de (?:ativos|equipamentos|ti)", r"gestao de ativos", r"controle e inventario de ativos"],
+        "SQL": [r"\bsql\b"],
+        "Oracle": [r"\boracle\b"],
+        "PostgreSQL / MySQL": [r"postgres", r"mysql"],
+        "SQL Server": [r"sql server"],
+        "PowerShell": [r"powershell"],
+        "Shell Script / Bash": [r"shell ?script", r"\bbash\b"],
+        "Python": [r"\bpython\b"],
+        "Docker / containers": [r"\bdocker\b", r"container", r"kubernetes", r"\bk8s\b"],
+        "Git": [r"\bgit\b", r"github", r"gitlab"],
+    },
+    "administrativo": {
+        "Contas a pagar / receber": [r"contas a (?:pagar|receber)"],
+        "Faturamento": [r"faturamento"],
+        "Conciliação bancária": [r"conciliacao bancaria", r"conciliacoes"],
+        "Notas fiscais": [r"notas? fisca(?:l|is)", r"\bnf-?e\b"],
+        "Fluxo de caixa": [r"fluxo de caixa"],
+        "Departamento pessoal / folha": [r"departamento pessoal", r"folha de pagamento", r"\bdp\b"],
+        "Rotinas fiscais / contábeis": [r"rotinas? (?:fiscais|contabeis)", r"lancamentos contabeis", r"\bsped\b"],
+        "Compras / cotações": [r"\bcompras\b", r"cotac(?:ao|oes)", r"fornecedores"],
+        "Arquivo e documentação": [r"arquivo de documentos", r"controle de documentos", r"organizacao de documentos"],
+    },
+    "comercial": {
+        "Prospecção de clientes": [r"prospeccao", r"prospectar"],
+        "CRM (Salesforce, RD, HubSpot)": [r"\bcrm\b(?! ativo)", r"salesforce", r"rd station", r"hubspot", r"pipedrive"],
+        "Metas de vendas": [r"metas? de vendas?", r"bater metas", r"cumprimento de metas"],
+        "Negociação": [r"negociac(?:ao|oes)"],
+        "Vendas B2B": [r"\bb2b\b"],
+        "Pós-venda": [r"pos-?venda"],
+        "Televendas / inside sales": [r"televendas", r"inside sales"],
+    },
+    "atendimento": {
+        "Atendimento ao cliente": [r"atendimento ao (?:cliente|publico)"],
+        "SAC / call center": [r"\bsac\b", r"call ?center", r"central de atendimento", r"telemarketing"],
+        "Atendimento por chat / WhatsApp": [r"whatsapp", r"atendimento (?:via|por) chat"],
+        "Recepção": [r"recepcao", r"recepcionista"],
+    },
+    "logistica": {
+        "Controle de estoque": [r"controle de estoque", r"gestao de estoque", r"\bestoque\b"],
+        "WMS": [r"\bwms\b"],
+        "Expedição / recebimento": [r"expedicao", r"recebimento de (?:mercadorias|materiais)"],
+        "Empilhadeira (NR-11)": [r"empilhadeira", r"\bnr-?11\b"],
+        "Roteirização / transporte": [r"roteirizacao", r"gestao de frota", r"transportadoras?"],
+    },
+    "saude": {
+        "COREN ativo": [r"\bcoren\b"],
+        "CRM ativo (médico)": [r"crm ativo"],
+        "Técnico / auxiliar de enfermagem": [r"(?:tecnico|auxiliar) de enfermagem"],
+        "Suporte de vida (BLS/ACLS)": [r"\bbls\b", r"\bacls\b"],
+        "Atendimento hospitalar": [r"\buti\b", r"pronto[- ]atendimento", r"centro cirurgico"],
+    },
+    "rh": {
+        "Recrutamento e seleção": [r"recrutamento e selecao", r"\br&s\b", r"recrutamento"],
+        "Treinamento e desenvolvimento": [r"treinamento e desenvolvimento", r"\bt&d\b"],
+        "Benefícios": [r"gestao de beneficios", r"administracao de beneficios"],
+        "eSocial": [r"esocial"],
+        "Onboarding": [r"onboarding", r"integracao de (?:novos )?colaboradores"],
+    },
+    "marketing": {
+        "Redes sociais": [r"redes sociais", r"social media", r"instagram"],
+        "Tráfego pago (Google/Meta Ads)": [r"google ads", r"meta ads", r"facebook ads", r"trafego pago"],
+        "SEO": [r"\bseo\b"],
+        "Google Analytics": [r"google analytics", r"\bga4\b"],
+        "Canva / design": [r"\bcanva\b", r"photoshop", r"illustrator"],
+        "Copywriting / redação": [r"copywriting", r"redacao publicitaria", r"producao de conteudo"],
+    },
+    "manutencao": {
+        "NR-10 (eletricidade)": [r"\bnr-?10\b"],
+        "NR-35 (altura)": [r"\bnr-?35\b"],
+        "NR-12 (máquinas)": [r"\bnr-?12\b"],
+        "Manutenção elétrica": [r"manutencao eletrica", r"instalacoes eletricas", r"eletricista"],
+        "Manutenção mecânica": [r"manutencao mecanica", r"mecanica industrial"],
+        "CLP / automação": [r"\bclp\b", r"automacao industrial"],
+        "Desenho técnico / AutoCAD": [r"desenho tecnico", r"autocad"],
+        "Solda": [r"\bsolda"],
+    },
+    "geral": {
+        "Excel": [r"\bexcel\b"],
+        "Pacote Office": [r"pacote office", r"\bword\b", r"powerpoint"],
+        "Power BI": [r"power ?bi"],
+        "ERP (SAP/TOTVS)": [r"\bsap\b", r"\btotvs\b", r"protheus", r"\berp\b"],
+        "Ensino superior (cursando/completo)": [r"superior (?:completo|cursando|em andamento)", r"graduacao", r"tecnologo", r"bacharel"],
+        "Curso técnico": [r"curso tecnico", r"tecnico em [a-z]+"],
+        "Inglês": [r"\bingles\b", r"\benglish\b"],
+        "Espanhol": [r"espanhol"],
+        "CNH / disponibilidade para viagens": [r"\bcnh\b", r"disponibilidade para viag", r"veiculo proprio"],
+        "Plantão / escala": [r"plantao", r"plantoes", r"escala 12x36", r"\b12x36\b", r"sobreaviso", r"24x7"],
+    },
 }
+
+NOMES_AREAS = {"ti": "Tecnologia", "administrativo": "Administrativo e financeiro", "comercial": "Comercial e vendas",
+               "atendimento": "Atendimento", "logistica": "Logística", "saude": "Saúde", "rh": "Recursos humanos",
+               "marketing": "Marketing", "manutencao": "Manutenção e indústria", "geral": "Requisitos gerais"}
+
+# todas as áreas juntas (compatibilidade com quem importava CATALOGO)
+CATALOGO: dict[str, list[str]] = {nome: pads for area in AREAS.values() for nome, pads in area.items()}
 
 
 def normalizar(texto: str) -> str:
@@ -89,8 +160,12 @@ def normalizar(texto: str) -> str:
     return re.sub(r"\s+", " ", t)          # junta termos quebrados em duas linhas no PDF
 
 
-def _compilar(extras: dict | None = None) -> dict[str, re.Pattern]:
-    cat = dict(CATALOGO)
+def _compilar(extras: dict | None = None, areas: list[str] | None = None) -> dict[str, re.Pattern]:
+    if areas:
+        escolhidas = set(areas) | {"geral"}
+        cat = {nome: pads for a, itens in AREAS.items() if a in escolhidas for nome, pads in itens.items()}
+    else:
+        cat = dict(CATALOGO)
     for nome, padroes in (extras or {}).items():
         cat[nome] = [p if isinstance(p, str) else str(p) for p in (padroes or [normalizar(nome)])]
     return {nome: re.compile("|".join(f"(?:{p})" for p in pads)) for nome, pads in cat.items()}
@@ -125,7 +200,7 @@ def calcular(vagas, cv: str, config: dict | None = None) -> Raiox:
     cfg = (config or {}).get("raiox", {})
     nota_area = cfg.get("nota_minima_area", 30)          # abaixo disso a vaga é de outra área
     nota_min = (config or {}).get("analise", {}).get("nota_minima", 65)
-    padroes = _compilar(cfg.get("habilidades_extras"))
+    padroes = _compilar(cfg.get("habilidades_extras"), cfg.get("areas") or None)
 
     area = [v for v in vagas if (v["nota"] or 0) >= nota_area]
     quase = [v for v in area if (v["nota"] or 0) < nota_min + 15]   # perto da linha de corte

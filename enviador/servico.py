@@ -19,10 +19,18 @@ class ErroConfig(Exception):
 
 
 def carregar_config(caminho: str = "config.yaml") -> dict:
+    from .configuracao import completar
+    from .ia import aplicar_chave
     p = Path(caminho)
     if not p.exists():
-        raise ErroConfig(f"Arquivo {caminho} não encontrado. Copie config.example.yaml para config.yaml e preencha.")
-    return yaml.safe_load(p.read_text(encoding="utf-8"))
+        raise ErroConfig(f"Arquivo {caminho} não encontrado. Rode `python -m enviador configurar` para criar.")
+    try:
+        cfg = completar(yaml.safe_load(p.read_text(encoding="utf-8")))
+    except yaml.YAMLError as e:
+        raise ErroConfig(f"O arquivo {caminho} tem um erro de formatação: {e}. "
+                         f"Se você editou à mão, compare com config.example.yaml (ou restaure {caminho}.bak).")
+    aplicar_chave(cfg)
+    return cfg
 
 
 def carregar_cv(config: dict) -> str:
@@ -123,3 +131,66 @@ def enviar_por_email(config: dict, banco, recomendadas, saida=print) -> int:
         if remetente:
             remetente.__exit__(None, None, None)
     return feitos
+
+
+# ---------- vaga adicionada à mão (InfoJobs, LinkedIn, Catho, indicação...) ----------
+class ErroVaga(ValueError):
+    pass
+
+
+def _fonte_do_link(url: str) -> str:
+    import re
+    m = re.search(r"https?://(?:www\.|[a-z0-9-]+\.)?([a-z0-9-]+)\.(?:com|io|net|org)", (url or "").lower())
+    return m.group(1) if m else "manual"
+
+
+def adicionar_vaga(config: dict, banco, titulo: str, descricao: str, empresa: str = "", url: str = "",
+                   cidade: str = "", remoto: bool = False, cv: str | None = None):
+    """Cadastra uma vaga colada pela pessoa, analisa e coloca na fila (mesmo com nota baixa:
+    foi você que escolheu). Retorna (linha_do_banco, nova: bool)."""
+    import hashlib
+    from .extrator import extrair_emails
+    from .modelos import Vaga
+    titulo, descricao = (titulo or "").strip(), (descricao or "").strip()
+    if not titulo:
+        raise ErroVaga("Informe o cargo da vaga.")
+    if len(descricao) < 40:
+        raise ErroVaga("Cole a descrição da vaga (requisitos e atividades). Sem ela não dá para analisar.")
+    url = (url or "").strip()
+    base = url or f"{titulo}|{empresa}".lower()
+    v = Vaga(fonte=f"manual:{_fonte_do_link(url)}", id_externo=hashlib.sha1(base.encode()).hexdigest()[:12],
+             titulo=titulo, empresa=(empresa or "").strip(), descricao=descricao, url=url,
+             cidade=(cidade or "").strip(), remoto=bool(remoto), emails=extrair_emails(descricao))
+    if not banco.registrar_vaga(v):
+        return banco.vaga(v.chave), False
+    cv = cv if cv is not None else carregar_cv(config)
+    cfg = dict(config, analise=dict(config.get("analise", {}), nota_minima_pre_filtro=0))
+    (_, a), = analisar_vagas([v], cv, cfg)
+    banco.salvar_analise(v.chave, a.nota, texto_analise(a), a.recomendada, a.lacunas, a.pontos_fortes,
+                         a.metodo, status="nova")
+    return banco.vaga(v.chave), True
+
+
+def reanalisar(config: dict, banco, cv: str | None = None, limite: int | None = None) -> dict:
+    """Refaz a análise, agora com IA, das vagas que foram avaliadas só por palavras-chave.
+    Começa pelas de maior nota. Vagas adiadas continuam adiadas."""
+    from . import ia
+    from .candidatura import vaga_do_banco
+    if not ia.disponivel():
+        raise ErroConfig("Configure a chave da Anthropic antes de reanalisar.")
+    cv = cv if cv is not None else carregar_cv(config)
+    limite = limite or config.get("analise", {}).get("max_analises_ia", 30)
+    linhas = [r for r in banco.listar(("nova", "depois", "baixa")) if (r["metodo"] or "") != "ia"]
+    linhas = sorted(linhas, key=lambda r: r["nota"] or 0, reverse=True)[:limite]
+    if not linhas:
+        return {"analisadas": 0, "recomendadas": 0, "mudaram": 0}
+    cfg = dict(config, analise=dict(config.get("analise", {}), max_analises_ia=limite))
+    antes = {r["chave"]: r["status"] for r in linhas}
+    resultado = analisar_vagas([vaga_do_banco(r) for r in linhas], cv, cfg)
+    mudaram = 0
+    for v, a in resultado:
+        banco.salvar_analise(v.chave, a.nota, texto_analise(a), a.recomendada, a.lacunas, a.pontos_fortes, a.metodo)
+        depois = banco.vaga(v.chave)["status"]
+        mudaram += (antes[v.chave] == "baixa") != (depois == "baixa")
+    return {"analisadas": sum(1 for _, a in resultado if a.metodo == "ia"),
+            "recomendadas": sum(1 for _, a in resultado if a.recomendada), "mudaram": mudaram}

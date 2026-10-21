@@ -34,6 +34,7 @@ _COLUNAS_NOVAS = {
     "descricao": "TEXT", "cidade": "TEXT", "remoto": "INTEGER", "atualizada_em": "TEXT",
     "lacunas": "TEXT", "pontos_fortes": "TEXT", "metodo": "TEXT",
     "etapa": "TEXT", "etapa_em": "TEXT", "followup_em": "TEXT", "respostas": "TEXT",
+    "preparo": "TEXT",
 }
 
 ETAPAS = {
@@ -82,10 +83,17 @@ class Banco:
         return cur.rowcount == 1
 
     def salvar_analise(self, chave: str, nota: int, texto: str, recomendada: bool,
-                       lacunas=None, pontos_fortes=None, metodo: str = ""):
+                       lacunas=None, pontos_fortes=None, metodo: str = "", status: str | None = None):
+        """Grava a análise. Sem `status`, a vaga vira 'nova' (recomendada) ou 'baixa'.
+        Numa reanálise, uma vaga que você adiou continua adiada se ainda for recomendada."""
+        if status is None:
+            atual = self.con.execute("SELECT status FROM vagas WHERE chave=?", (chave,)).fetchone()
+            adiada = atual is not None and atual["status"] == "depois"
+            status = ("depois" if adiada else "nova") if recomendada else "baixa"
         self.con.execute(
-            "UPDATE vagas SET nota=?, analise=?, status=?, lacunas=?, pontos_fortes=?, metodo=? WHERE chave=?",
-            (nota, texto, "nova" if recomendada else "baixa",
+            "UPDATE vagas SET nota=?, analise=?, status=?, lacunas=?, pontos_fortes=?, metodo=?, "
+            "respostas=NULL WHERE chave=?",
+            (nota, texto, status,
              json.dumps(lacunas or [], ensure_ascii=False),
              json.dumps(pontos_fortes or [], ensure_ascii=False), metodo, chave))
         self.con.commit()
@@ -128,6 +136,11 @@ class Banco:
                          (status, agora(), chave))
         if status in STATUS_CANDIDATURA:
             self._etapa(chave, "candidatei", "")
+        self.con.commit()
+
+    def salvar_preparo(self, chave: str, preparo: dict | None):
+        self.con.execute("UPDATE vagas SET preparo=? WHERE chave=?",
+                         (json.dumps(preparo, ensure_ascii=False) if preparo else None, chave))
         self.con.commit()
 
     def salvar_respostas(self, chave: str, respostas: dict):

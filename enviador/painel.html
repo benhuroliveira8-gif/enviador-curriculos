@@ -178,7 +178,85 @@ a { color: var(--cobalto); }
 .toast button { background: none; border: 0; color: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0; }
 @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
 
+/* aviso no topo */
+.aviso {
+  display: flex; gap: 10px 16px; align-items: center; flex-wrap: wrap; justify-content: space-between;
+  background: var(--ambar-claro); border-radius: var(--raio); padding: 10px 14px; margin: 0 0 14px;
+}
+.aviso.info { background: var(--cobalto-claro); }
+.aviso p { margin: 0; max-width: 78ch; }
+.aviso[hidden] { display: none; }
+
+/* janela (adicionar vaga, entrevista) */
+dialog.janela {
+  border: 1px solid var(--linha); border-radius: 10px; padding: 0; width: min(760px, calc(100% - 24px));
+  max-height: calc(100vh - 40px); background: var(--superficie); color: var(--tinta);
+  box-shadow: 0 16px 48px rgba(16, 22, 30, .28);
+}
+dialog.janela::backdrop { background: rgba(16, 22, 30, .45); }
+.janela > header {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  padding: 16px 20px 12px; border-bottom: 1px solid var(--linha); position: sticky; top: 0; background: var(--superficie); z-index: 1;
+}
+.janela > header h2 { margin: 0; font: 600 24px/1.15 var(--cond); }
+.janela > header p { margin: 3px 0 0; color: var(--secundario); font-size: 15px; }
+.janela .corpo { padding: 16px 20px 22px; }
+.janela h3 { font: 600 17px var(--sans); margin: 20px 0 6px; }
+.janela ul { margin: 0; padding-left: 20px; }
+.janela li { margin: 3px 0; }
+
+/* formulários */
+.campo { display: grid; gap: 4px; margin-bottom: 12px; }
+.campo label { font-weight: 500; font-size: 15px; }
+.campo small { color: var(--secundario); font-size: 13px; }
+.campo input:not([type=checkbox]), .campo textarea, .campo select {
+  padding: 8px 10px; border: 1px solid var(--linha); border-radius: 6px; background: var(--superficie); width: 100%; min-width: 0;
+}
+.campo textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
+.duas { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
+.marcar { display: flex; gap: 8px; align-items: center; font-size: 15px; margin: 2px 0 10px; cursor: pointer; }
+.marcar input { width: 17px; height: 17px; accent-color: var(--cobalto); }
+.acoes-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.retorno { font-size: 14px; color: var(--secundario); }
+.retorno.ok { color: var(--verde); }
+.retorno.erro { color: var(--vermelho); }
+.secao-config { background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px 18px 6px; margin-bottom: 14px; }
+.secao-config h3 { margin: 0 0 2px; font: 600 18px var(--sans); }
+.secao-config > p { margin: 0 0 14px; color: var(--secundario); font-size: 15px; max-width: 75ch; }
+.rodape-salvar {
+  position: sticky; bottom: 0; background: var(--fundo); padding: 12px 0; display: flex; gap: 12px;
+  align-items: center; border-top: 1px solid var(--linha);
+}
+
+/* entrevista */
+.pergunta { border-top: 1px solid var(--linha); padding: 12px 0; }
+.pergunta:first-child { border-top: 0; padding-top: 0; }
+.pergunta h4 { margin: 0 0 3px; font: 600 16px/1.35 var(--sans); }
+.pergunta .motivo { color: var(--secundario); font-size: 14px; margin: 0 0 6px; }
+.pergunta p { margin: 0; max-width: 75ch; }
+
+/* sugestões e resultados */
+.sugestoes { list-style: none; margin: 0; padding: 0; }
+.sugestoes li { padding: 10px 0; border-top: 1px solid var(--linha); }
+.sugestoes li:first-child { border-top: 0; padding-top: 0; }
+.sugestoes strong { font-weight: 600; }
+.sugestoes > li > span { display: block; color: var(--secundario); font-size: 15px; max-width: 80ch; margin-top: 2px; }
+.tipo { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; margin-right: 6px; vertical-align: 1px; }
+.tipo.incluir { background: var(--ambar-claro); color: var(--ambar); }
+.tipo.destacar, .tipo.cargo { background: var(--verde-claro); color: var(--verde); }
+.tipo.ajustar { background: var(--cobalto-claro); color: var(--cobalto); }
+.destaque-numero { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.destaque-numero b { font: 600 52px/1 var(--cond); font-variant-numeric: tabular-nums; }
+.destaque-numero p { margin: 0; max-width: 52ch; }
+.tabela { width: 100%; border-collapse: collapse; font-size: 15px; }
+.tabela th, .tabela td { text-align: left; padding: 7px 8px; border-top: 1px solid var(--linha); }
+.tabela th { font-weight: 500; color: var(--secundario); border-top: 0; font-size: 14px; }
+.tabela .num { text-align: right; font-variant-numeric: tabular-nums; }
+.grade-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+
 @media (max-width: 760px) {
+  .duas, .tres, .grade-2 { grid-template-columns: 1fr; }
   .vaga-linha { grid-template-columns: 56px 1fr; gap: 12px; padding: 14px; }
   .nota b { font-size: 30px; }
   .acoes { grid-column: 1 / -1; justify-content: flex-start; }
@@ -197,17 +275,22 @@ a { color: var(--cobalto); }
       <p id="subtitulo">Carregando…</p>
     </div>
     <div class="busca-agora">
+      <button class="btn" id="btn-adicionar" type="button">Adicionar vaga</button>
       <button class="btn primario" id="btn-buscar" type="button">Buscar vagas agora</button>
       <span class="estado" id="estado-busca" role="status" aria-live="polite"></span>
     </div>
   </header>
 
+  <div class="aviso" id="aviso" hidden></div>
+
   <nav class="abas" role="tablist" aria-label="Seções">
     <button class="aba" role="tab" data-aba="fila" aria-selected="true">Para decidir <span class="n" id="n-fila"></span></button>
     <button class="aba" role="tab" data-aba="candidaturas" aria-selected="false">Candidaturas <span class="n" id="n-candidaturas"></span></button>
     <button class="aba" role="tab" data-aba="followup" aria-selected="false">Follow-up <span class="n" id="n-followup"></span></button>
-    <button class="aba" role="tab" data-aba="raiox" aria-selected="false">Raio-x do mercado</button>
+    <button class="aba" role="tab" data-aba="raiox" aria-selected="false">Raio-x e currículo</button>
+    <button class="aba" role="tab" data-aba="resultados" aria-selected="false">Resultados</button>
     <button class="aba" role="tab" data-aba="descartadas" aria-selected="false">Descartadas <span class="n" id="n-descartadas"></span></button>
+    <button class="aba" role="tab" data-aba="config" aria-selected="false">Configurações</button>
   </nav>
 
   <div class="ferramentas" id="ferramentas">
@@ -222,6 +305,11 @@ a { color: var(--cobalto); }
 
   <main id="conteudo" tabindex="-1"></main>
 </div>
+
+<dialog class="janela" id="janela" aria-labelledby="janela-titulo">
+  <header><div><h2 id="janela-titulo"></h2><p id="janela-sub"></p></div><button class="btn sutil" type="button" id="janela-fechar">Fechar</button></header>
+  <div class="corpo" id="janela-corpo"></div>
+</dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-texto"></span><button type="button" id="toast-desfazer" hidden>Desfazer</button></div>
 
@@ -283,7 +371,24 @@ async function carregarResumo() {
   partes.push(r.ativas === 1 ? "1 candidatura em andamento" : `${r.ativas} candidaturas em andamento`);
   if (r.followups) partes.push(r.followups === 1 ? "1 pedindo follow-up" : `${r.followups} pedindo follow-up`);
   $("#subtitulo").textContent = partes.join(", ") + ".";
-  mostrarBusca(r.busca);
+  mostrarTarefa(r.tarefa);
+  mostrarAviso(r);
+}
+
+function mostrarAviso(r) {
+  const el = $("#aviso");
+  let html = "", info = false;
+  if (!r.configurado) {
+    html = `<p>Comece pelas configurações: seus dados e os cargos que você procura.</p><button class="btn primario" type="button" data-ir="config">Abrir configurações</button>`;
+  } else if (!r.ia) {
+    html = `<p>As notas estão vindo só de palavras-chave, que erram bastante. Com a chave da Anthropic, cada vaga é lida de verdade e a nota vem explicada.</p><button class="btn" type="button" data-ir="config">Configurar a IA</button>`;
+  } else if (r.sem_ia > 0 && !r.tarefa.rodando) {
+    info = true;
+    html = `<p>${r.sem_ia === 1 ? "1 vaga foi avaliada" : `${r.sem_ia} vagas foram avaliadas`} só por palavras-chave, antes da IA.</p><button class="btn" type="button" data-acao-global="reanalisar">Reanalisar com IA</button>`;
+  }
+  el.innerHTML = html;
+  el.classList.toggle("info", info);
+  el.hidden = !html;
 }
 
 function trocarAba(aba) {
@@ -299,6 +404,8 @@ async function renderizar() {
   const alvo = $("#conteudo");
   try {
     if (estado.aba === "raiox") return renderRaiox(alvo, await api("/api/raiox"));
+    if (estado.aba === "resultados") return renderResultados(alvo, await api("/api/resultados"));
+    if (estado.aba === "config") return renderConfig(alvo, await api("/api/config"));
     const q = encodeURIComponent($("#filtro-texto").value);
     const nota = $("#filtro-nota").value;
     const vagas = await api(`/api/vagas?aba=${estado.aba}&q=${q}&nota_min=${nota}`);
@@ -337,7 +444,7 @@ function linhaVaga(v, descartada) {
         <small>${v.metodo === "ia" ? "análise IA" : "por palavras"}</small>
       </div>
       <div class="info">
-        <h3>${esc(v.titulo)}${v.status === "depois" ? `<span class="etiqueta depois">adiada</span>` : ""}${v.email ? `<span class="etiqueta">aceita e-mail</span>` : ""}</h3>
+        <h3>${esc(v.titulo)}${v.status === "depois" ? `<span class="etiqueta depois">adiada</span>` : ""}${v.email ? `<span class="etiqueta">aceita e-mail</span>` : ""}${v.manual ? `<span class="etiqueta">adicionada por você</span>` : ""}</h3>
         <div class="onde">${onde(v)}</div>
         ${v.resumo ? `<p class="por-que">${esc(v.resumo)}</p>` : ""}
         <button class="btn sutil" type="button" data-acao="detalhe" aria-expanded="false" style="margin:6px 0 0 -12px">Ver análise e respostas</button>
@@ -425,6 +532,7 @@ function renderQuadro(alvo, vagas) {
           <label class="sr" style="position:absolute;left:-9999px" for="etapa-${v.id}">Etapa</label>
           <select id="etapa-${v.id}" data-acao="etapa">${opcoes(v.etapa)}</select>
           <div class="links">${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">Abrir vaga</a>` : "<span></span>"}<button class="btn sutil" type="button" data-acao="historico" style="padding:0 4px">Histórico</button></div>
+          ${chave === "encerradas" ? "" : `<button class="btn ${["entrevista", "teste", "proposta"].includes(v.etapa) ? "primario" : ""}" type="button" data-acao="entrevista" style="width:100%;justify-content:center;margin-top:8px">Preparar entrevista</button>`}
         </div>`;
       }).join("") : `<div class="vazia">Nada aqui.</div>`}
     </section>`;
@@ -437,7 +545,7 @@ async function mudarEtapa(item, etapa) {
     obs = prompt("Quer anotar algo? Por exemplo, data e horário da entrevista.", "") || "";
   }
   await api(`/api/vagas/${item.dataset.id}/etapa`, { method: "POST", body: { etapa, obs } });
-  avisar(`Etapa atualizada: ${estado.resumo.nomes_etapas[etapa]}`);
+  avisar(etapa === "entrevista" ? "Etapa atualizada: Entrevista. Use \"Preparar entrevista\" no cartão." : `Etapa atualizada: ${estado.resumo.nomes_etapas[etapa]}`);
   await carregarResumo();
   renderizar();
 }
@@ -481,8 +589,8 @@ function renderRaiox(alvo, r) {
   const barras = (itens, cor, quase) => itens.map((i) => `<div class="barra" style="--p:${i.percentual}%;--cor:${cor}">
       <span>${esc(i.habilidade)}</span><b>${i.percentual}%</b><i></i>
       ${quase && i.em_quase ? `<small>Pedido em ${i.em_quase} de ${r.total_quase} vagas perto da sua nota de corte</small>` : ""}</div>`).join("");
-  alvo.innerHTML = `
-    <p class="nota-rodape" style="margin:16px 0 14px">Baseado em ${r.total_area} vagas da sua área. A porcentagem mostra em quantas delas o termo aparece: é tendência, não requisito obrigatório.</p>
+  alvo.innerHTML = blocoSugestoes(r) + `
+    <p class="nota-rodape" style="margin:20px 0 14px">Raio-x baseado em ${r.total_area} vagas da sua área. A porcentagem mostra em quantas delas o termo aparece: é tendência, não requisito obrigatório.</p>
     <div class="raiox">
       <section class="painel-bloco">
         <h3>Pedem e falta no seu currículo</h3>
@@ -502,25 +610,271 @@ function renderRaiox(alvo, r) {
     </div>`;
 }
 
-/* ---------- busca ---------- */
-function mostrarBusca(b) {
-  const botao = $("#btn-buscar");
-  botao.disabled = b.rodando;
-  botao.textContent = b.rodando ? "Buscando…" : "Buscar vagas agora";
-  $("#estado-busca").textContent = b.rodando ? "Isso leva de um a alguns minutos." : (b.mensagem || "");
+/* ---------- sugestões de currículo (aba raio-x) ---------- */
+const NOME_TIPO = { incluir: "Incluir", destacar: "Destacar", cargo: "Nome do cargo", ajustar: "Ajustar" };
+function blocoSugestoes(r) {
+  const itens = (r.sugestoes || []).map((s) => `<li><strong><span class="tipo ${esc(s.tipo)}">${NOME_TIPO[s.tipo] || "Ajustar"}</span>${esc(s.titulo)}</strong><span>${esc(s.detalhe)}</span></li>`).join("");
+  const ia = estado.resumo?.ia;
+  return `<section class="painel-bloco" style="margin-top:16px">
+    <h3>Sugestões para o seu currículo</h3>
+    <p>Com base no que as vagas da sua área pedem. Só inclua o que for verdade.</p>
+    ${itens ? `<ul class="sugestoes">${itens}</ul>` : "<p>Nada a sugerir por enquanto.</p>"}
+    <div id="area-curriculo-ia" style="margin-top:14px">
+      ${ia ? `<button class="btn" type="button" data-acao-global="curriculo-ia">Pedir sugestões detalhadas à IA</button>
+              <span class="retorno" style="margin-left:8px">Ela propõe um novo resumo e reescreve trechos, sem inventar nada.</span>`
+           : `<p class="nota-rodape">Com a chave da Anthropic, a IA também propõe um novo resumo e reescreve trechos do currículo.</p>`}
+    </div>
+  </section>`;
 }
-async function buscarAgora() {
-  mostrarBusca(await api("/api/buscar", { method: "POST" }));
+
+async function curriculoIA(botao) {
+  const area = $("#area-curriculo-ia");
+  botao.disabled = true; botao.textContent = "Pensando… (até 1 minuto)";
+  try {
+    const d = await api("/api/curriculo/ia", { method: "POST" });
+    area.innerHTML = `
+      ${d.resumo_sugerido ? `<div class="resposta"><header><strong>Resumo sugerido</strong><button class="btn sutil" type="button" data-copiar>Copiar</button></header><p>${esc(d.resumo_sugerido)}</p></div>` : ""}
+      ${d.ajustes.length ? `<h4 style="margin:16px 0 4px;font:600 15px var(--sans)">Ajustes sugeridos</h4><ul class="sugestoes">${d.ajustes.map((a) => `<li><strong>${esc(a.secao)}</strong><span>${esc(a.sugestao)}</span>${a.exemplo ? `<div class="resposta" style="margin-top:6px"><p>${esc(a.exemplo)}</p></div>` : ""}</li>`).join("")}</ul>` : ""}
+      ${d.palavras_chave.length ? `<h4 style="margin:16px 0 6px;font:600 15px var(--sans)">Termos das vagas que você já domina</h4><div class="chips">${d.palavras_chave.map((p) => `<span class="chip favor">${esc(p)}</span>`).join("")}</div>` : ""}
+      <p class="nota-rodape" style="margin-top:12px">Onde aparecer [colchetes], complete com seus dados reais.</p>`;
+  } catch (e) {
+    botao.disabled = false; botao.textContent = "Tentar de novo"; avisar(e.message);
+  }
+}
+
+/* ---------- tarefas demoradas: busca e reanálise ---------- */
+function mostrarTarefa(t) {
+  const botao = $("#btn-buscar");
+  botao.disabled = t.rodando;
+  botao.textContent = t.rodando && t.tipo === "busca" ? "Buscando…" : "Buscar vagas agora";
+  $("#estado-busca").textContent = t.rodando
+    ? (t.tipo === "reanalise" ? "Reanalisando com IA. Pode levar alguns minutos." : "Isso leva de um a alguns minutos.")
+    : (t.mensagem || "");
+}
+async function iniciarTarefa(caminho) {
+  mostrarTarefa(await api(caminho, { method: "POST" }));
+  $("#aviso").hidden = true;
   clearInterval(estado.timerBusca);
   estado.timerBusca = setInterval(async () => {
     const r = await api("/api/resumo");
-    mostrarBusca(r.busca);
-    if (!r.busca.rodando) {
+    mostrarTarefa(r.tarefa);
+    if (!r.tarefa.rodando) {
       clearInterval(estado.timerBusca);
       await carregarResumo();
-      if (estado.aba === "fila" || estado.aba === "raiox") renderizar();
+      if (["fila", "raiox", "descartadas"].includes(estado.aba)) renderizar();
     }
   }, 3000);
+}
+const buscarAgora = () => iniciarTarefa("/api/buscar").catch((e) => avisar(e.message));
+
+/* ---------- janela ---------- */
+function abrirJanela(titulo, sub, html) {
+  $("#janela-titulo").textContent = titulo;
+  $("#janela-sub").textContent = sub || "";
+  $("#janela-corpo").innerHTML = html;
+  const j = $("#janela");
+  if (!j.open) j.showModal();
+  j.scrollTop = 0;
+}
+const fecharJanela = () => $("#janela").close();
+
+/* ---------- adicionar vaga ---------- */
+function janelaAdicionar() {
+  abrirJanela("Adicionar vaga", "De qualquer site: InfoJobs, LinkedIn, Catho, Indeed ou indicação.", `
+    <form id="form-vaga">
+      <div class="duas">
+        <div class="campo"><label for="v-titulo">Cargo</label><input id="v-titulo" name="titulo" type="text" required placeholder="Analista de suporte N2"></div>
+        <div class="campo"><label for="v-empresa">Empresa</label><input id="v-empresa" name="empresa" type="text"></div>
+      </div>
+      <div class="campo"><label for="v-url">Link da vaga</label><input id="v-url" name="url" type="url" placeholder="https://…"></div>
+      <div class="duas">
+        <div class="campo"><label for="v-cidade">Cidade</label><input id="v-cidade" name="cidade" type="text"></div>
+        <div class="campo"><label>&nbsp;</label><label class="marcar"><input type="checkbox" name="remoto"> Vaga remota</label></div>
+      </div>
+      <div class="campo"><label for="v-descricao">Descrição da vaga</label>
+        <textarea id="v-descricao" name="descricao" required style="min-height:200px" placeholder="Cole aqui o texto inteiro: atividades, requisitos, diferenciais."></textarea>
+        <small>Quanto mais completa a descrição, melhor a análise.</small></div>
+      <div class="acoes-form"><button class="btn primario" type="submit">Analisar e adicionar</button><span class="retorno" id="retorno-vaga" role="status"></span></div>
+    </form>`);
+  $("#v-titulo").focus();
+}
+
+async function enviarVaga(form) {
+  const botao = $("button[type=submit]", form), ret = $("#retorno-vaga");
+  const dados = Object.fromEntries(new FormData(form));
+  dados.remoto = form.remoto.checked;
+  botao.disabled = true; botao.textContent = "Analisando…"; ret.textContent = ""; ret.className = "retorno";
+  try {
+    const v = await api("/api/vagas", { method: "POST", body: dados });
+    fecharJanela();
+    await carregarResumo();
+    trocarAba("fila");
+    avisar(v.ja_existia ? "Essa vaga já estava na sua lista." : `Vaga adicionada com nota ${v.nota}.`);
+  } catch (e) {
+    ret.textContent = e.message; ret.className = "retorno erro";
+    botao.disabled = false; botao.textContent = "Analisar e adicionar";
+  }
+}
+
+/* ---------- entrevista ---------- */
+async function janelaEntrevista(id, refazer = false) {
+  const card = $(`.item[data-id="${id}"] strong`);
+  abrirJanela("Preparação para entrevista", card ? card.textContent : "", `<p class="retorno" role="status">Preparando perguntas e respostas…</p>`);
+  try {
+    const p = await api(`/api/vagas/${id}/entrevista${refazer ? "?refazer=1" : ""}`);
+    $("#janela-sub").textContent = [p.titulo, p.empresa].filter(Boolean).join(", ");
+    const texto = [
+      ...p.perguntas.map((q, i) => `${i + 1}. ${q.pergunta}\nPor que perguntam: ${q.motivo}\nComo responder: ${q.como_responder}`),
+      "", "Perguntas para você fazer:", ...p.para_perguntar.map((x) => "- " + x),
+      "", "Pesquise antes:", ...p.pesquisar.map((x) => "- " + x)].join("\n");
+    $("#janela-corpo").innerHTML = `
+      ${p.metodo === "ia" ? "" : `<p class="aviso" style="display:block">Roteiro padrão montado com a análise da vaga. Com a chave da Anthropic, as perguntas e respostas são feitas para esta vaga e o seu currículo.</p>`}
+      <div class="acoes-form" style="margin-bottom:14px">
+        <button class="btn" type="button" data-copiar-texto="${esc(texto)}">Copiar tudo</button>
+        ${estado.resumo?.ia ? `<button class="btn sutil" type="button" data-acao-global="refazer-entrevista" data-id="${id}">Gerar de novo</button>` : ""}
+      </div>
+      <h3 style="margin-top:0">Perguntas prováveis</h3>
+      ${p.perguntas.map((q) => `<div class="pergunta"><h4>${esc(q.pergunta)}</h4><p class="motivo">${esc(q.motivo)}</p><p>${esc(q.como_responder)}</p></div>`).join("")}
+      <h3>Perguntas para você fazer</h3><ul>${p.para_perguntar.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+      <h3>Pesquise antes</h3><ul>${p.pesquisar.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+      <p class="nota-rodape" style="margin-top:16px">Onde aparecer [colchetes], complete com seus dados reais. Ensaie em voz alta: ajuda mais do que reler.</p>`;
+  } catch (e) {
+    $("#janela-corpo").innerHTML = `<p class="retorno erro">${esc(e.message)}</p>`;
+  }
+}
+
+/* ---------- resultados ---------- */
+function renderResultados(alvo, r) {
+  const g = r.geral;
+  if (!g.total) {
+    alvo.innerHTML = `<div class="vazio" style="margin-top:16px"><h3>Ainda sem candidaturas</h3><p>Aqui você vai ver quais candidaturas avançam (por nota, fonte e cargo) e o que ajustar na busca. Marque "Candidatei" nas vagas e atualize as etapas conforme as respostas chegarem.</p></div>`;
+    return;
+  }
+  const taxa = (x) => x.taxa === null || x.taxa === undefined ? `<span style="color:var(--secundario)">aguardando</span>` : `${x.taxa}%`;
+  const tabela = (rotulo, linhas, chave) => linhas.filter((l) => l.total).length ? `<section class="painel-bloco"><h3>${rotulo}</h3>
+    <table class="tabela"><thead><tr><th>${chave === "faixa" ? "Nota" : chave === "fonte" ? "Fonte" : chave === "cargo" ? "Cargo" : "Modalidade"}</th><th class="num">Candidaturas</th><th class="num">Com resultado</th><th class="num">Taxa de avanço</th></tr></thead>
+    <tbody>${linhas.filter((l) => l.total).map((l) => `<tr><td>${esc(l[chave])}</td><td class="num">${l.total}</td><td class="num">${l.com_resultado}</td><td class="num">${taxa(l)}</td></tr>`).join("")}</tbody></table></section>` : "";
+  alvo.innerHTML = `
+    <section class="painel-bloco" style="margin-top:16px">
+      <div class="destaque-numero"><b>${g.taxa === null ? "–" : g.taxa + "%"}</b>
+        <p>${g.com_resultado ? `Das ${g.com_resultado} candidaturas que já tiveram resultado, ${g.avancaram} ${g.avancaram === 1 ? "avançou" : "avançaram"} para teste, entrevista ou proposta.` : "Nenhuma candidatura teve resultado ainda."} ${g.total - g.com_resultado ? `${g.total - g.com_resultado} ainda ${g.total - g.com_resultado === 1 ? "aguarda" : "aguardam"} resposta.` : ""}</p></div>
+      <h3 style="margin-top:18px">O que isso sugere</h3>
+      <ul class="sugestoes">${r.sugestoes.map((s) => `<li><span style="color:var(--tinta)">${esc(s)}</span></li>`).join("")}</ul>
+      <p class="nota-rodape" style="margin-top:10px">Conta como resultado: chegar a teste, entrevista ou proposta (avançou), ou ser reprovado, ficar sem resposta ou passar 3 semanas parada (não avançou).</p>
+    </section>
+    <div class="grade-2">${tabela("Por nota de compatibilidade", r.faixas, "faixa")}${tabela("Por fonte", r.fontes, "fonte")}</div>
+    <div class="grade-2">${tabela("Por cargo", r.cargos, "cargo")}${tabela("Remoto ou presencial", r.modalidade, "modalidade")}</div>`;
+}
+
+/* ---------- configurações ---------- */
+function renderConfig(alvo, c) {
+  const v = (x) => esc(x ?? "");
+  const lista = (x) => esc((x || []).join(", "));
+  const marcado = (x) => (x ? "checked" : "");
+  const iaStatus = c.ia.configurada
+    ? `<span class="retorno ok">Chave configurada (termina em ${esc(c.ia.final)})${c.ia.pelo_ambiente ? ", pela variável de ambiente" : ""}.</span>`
+    : `<span class="retorno erro">Sem chave: as notas vêm só de palavras-chave.</span>`;
+  alvo.innerHTML = `<form id="form-config" style="margin-top:16px">
+    <section class="secao-config"><h3>Seus dados</h3><p>Vão nas mensagens às empresas e nas respostas dos formulários.</p>
+      <div class="duas">
+        <div class="campo"><label for="c-nome">Nome completo</label><input id="c-nome" name="candidato.nome" type="text" value="${v(c.candidato.nome)}"></div>
+        <div class="campo"><label for="c-email">E-mail para contato</label><input id="c-email" name="candidato.email" type="email" value="${v(c.candidato.email)}"></div>
+        <div class="campo"><label for="c-tel">Telefone</label><input id="c-tel" name="candidato.telefone" type="text" value="${v(c.candidato.telefone)}"></div>
+        <div class="campo"><label for="c-li">LinkedIn</label><input id="c-li" name="candidato.linkedin" type="url" value="${v(c.candidato.linkedin)}" placeholder="https://linkedin.com/in/…"></div>
+        <div class="campo"><label for="c-pret">Pretensão salarial</label><input id="c-pret" name="candidato.pretensao_salarial" type="text" value="${v(c.candidato.pretensao_salarial)}" placeholder="R$ 3.500"></div>
+      </div>
+      <div class="campo"><label for="c-resumo">Resumo profissional</label><textarea id="c-resumo" name="candidato.resumo">${v(c.candidato.resumo)}</textarea><small>2 ou 3 frases, só com fatos do seu currículo.</small></div>
+    </section>
+
+    <section class="secao-config"><h3>O que procurar</h3><p>Separe os itens por vírgula.</p>
+      <div class="campo"><label for="c-cargos">Cargos</label><textarea id="c-cargos" name="busca.palavras_chave" style="min-height:60px">${lista(c.busca.palavras_chave)}</textarea></div>
+      <div class="duas">
+        <div class="campo"><label for="c-cidades">Cidades</label><input id="c-cidades" name="busca.cidades" type="text" value="${lista(c.busca.cidades)}"><small>Vazio = qualquer lugar.</small></div>
+        <div class="campo"><label for="c-excl">Ignorar vagas com estes termos no título</label><input id="c-excl" name="busca.palavras_excluidas" type="text" value="${lista(c.busca.palavras_excluidas)}"></div>
+        <div class="campo"><label for="c-dias">Só vagas publicadas nos últimos (dias)</label><input id="c-dias" name="busca.dias_maximos" type="number" min="1" max="90" value="${v(c.busca.dias_maximos)}"></div>
+        <div class="campo"><label>&nbsp;</label><label class="marcar"><input type="checkbox" name="busca.aceitar_remoto" ${marcado(c.busca.aceitar_remoto)}> Aceito vagas remotas</label></div>
+      </div>
+    </section>
+
+    <section class="secao-config"><h3>Onde procurar</h3><p>Gupy tem vagas de todas as áreas. Para o InfoJobs, LinkedIn e outros, use "Adicionar vaga".</p>
+      <label class="marcar"><input type="checkbox" name="busca.fontes.gupy" ${marcado(c.busca.fontes.gupy)}> Gupy</label>
+      <label class="marcar"><input type="checkbox" name="busca.fontes.github_vagas" ${marcado(c.busca.fontes.github_vagas)}> Repositórios de vagas no GitHub (programação; muitas aceitam e-mail)</label>
+      <label class="marcar"><input type="checkbox" name="busca.fontes.adzuna" ${marcado(c.busca.fontes.adzuna)}> Adzuna (agrega vários sites; cadastro grátis em developer.adzuna.com)</label>
+      <div class="tres">
+        <div class="campo"><label for="c-azid">Adzuna app_id</label><input id="c-azid" name="busca.adzuna_app_id" type="text" value="${v(c.busca.adzuna_app_id)}"></div>
+        <div class="campo"><label for="c-azkey">Adzuna app_key</label><input id="c-azkey" name="busca.adzuna_app_key" type="password" placeholder="${c.busca.adzuna_tem_chave ? "guardada; preencha só para trocar" : ""}" autocomplete="off"></div>
+        <div class="campo"><label for="c-azonde">Região na Adzuna</label><input id="c-azonde" name="busca.adzuna_onde" type="text" value="${v(c.busca.adzuna_onde)}" placeholder="Rio Grande do Sul"></div>
+      </div>
+    </section>
+
+    <section class="secao-config"><h3>Análise com IA</h3>
+      <p>A chave da Anthropic faz a nota de cada vaga vir de uma leitura de verdade dos requisitos. Crie em console.anthropic.com; o custo é de centavos por busca.</p>
+      <div style="margin:-4px 0 12px">${iaStatus}</div>
+      <div class="campo"><label for="c-chave">${c.ia.configurada ? "Trocar a chave" : "Chave da Anthropic"}</label><input id="c-chave" name="ia.chave_api" type="password" placeholder="sk-ant-…" autocomplete="off"></div>
+      <div class="acoes-form" style="margin-bottom:14px"><button class="btn" type="button" data-acao-global="testar-ia">Testar chave</button><span class="retorno" id="retorno-ia" role="status"></span></div>
+      <div class="duas">
+        <div class="campo"><label for="c-nota">Nota mínima para recomendar</label><input id="c-nota" name="analise.nota_minima" type="number" min="30" max="95" value="${v(c.analise.nota_minima)}"></div>
+      </div>
+    </section>
+
+    <section class="secao-config"><h3>E-mail e avisos</h3>
+      <p>A conta que envia as candidaturas por e-mail e o resumo diário. No Gmail, use uma senha de app (Conta Google → Segurança → Senhas de app).</p>
+      <div class="duas">
+        <div class="campo"><label for="c-smtpu">E-mail que envia</label><input id="c-smtpu" name="smtp.usuario" type="email" value="${v(c.smtp.usuario)}"></div>
+        <div class="campo"><label for="c-smtps">Senha de app</label><input id="c-smtps" name="smtp.senha" type="password" placeholder="${c.smtp.tem_senha ? "guardada; preencha só para trocar" : ""}" autocomplete="off"></div>
+      </div>
+      <div class="acoes-form" style="margin-bottom:14px"><button class="btn" type="button" data-acao-global="testar-email">Testar login</button><span class="retorno" id="retorno-email" role="status"></span></div>
+      <label class="marcar"><input type="checkbox" name="aviso.email" ${marcado(c.aviso.email)}> Mandar o resumo diário por e-mail</label>
+      <div class="duas">
+        <div class="campo"><label for="c-alerta">Destacar no resumo vagas com nota a partir de</label><input id="c-alerta" name="aviso.nota_alerta" type="number" min="30" max="100" value="${v(c.aviso.nota_alerta)}"></div>
+        <div class="campo"><label for="c-fu">Lembrar de follow-up depois de (dias sem novidade)</label><input id="c-fu" name="acompanhamento.dias_followup" type="number" min="3" max="60" value="${v(c.acompanhamento.dias_followup)}"></div>
+      </div>
+    </section>
+
+    <div class="rodape-salvar"><button class="btn primario" type="submit">Salvar configurações</button><span class="retorno" id="retorno-config" role="status"></span></div>
+  </form>`;
+}
+
+function lerFormConfig(form) {
+  const d = {};
+  const por = (caminho, valor) => {
+    const partes = caminho.split("."); let o = d;
+    partes.slice(0, -1).forEach((p) => (o = o[p] ??= {}));
+    o[partes.at(-1)] = valor;
+  };
+  form.querySelectorAll("input, textarea").forEach((el) => {
+    if (!el.name) return;
+    if (el.type === "checkbox") por(el.name, el.checked);
+    else if (el.type === "password") { if (el.value.trim()) por(el.name, el.value.trim()); }
+    else por(el.name, el.value);
+  });
+  return d;
+}
+
+async function salvarConfig(form) {
+  const ret = $("#retorno-config"), botao = $("button[type=submit]", form);
+  botao.disabled = true; ret.textContent = "Salvando…"; ret.className = "retorno";
+  try {
+    const c = await api("/api/config", { method: "POST", body: lerFormConfig(form) });
+    await carregarResumo();
+    renderConfig($("#conteudo"), c);
+    avisar("Configurações salvas.");
+  } catch (e) {
+    ret.textContent = e.message; ret.className = "retorno erro"; botao.disabled = false;
+  }
+}
+
+async function testar(tipo) {
+  const ret = $(tipo === "ia" ? "#retorno-ia" : "#retorno-email");
+  ret.textContent = "Testando…"; ret.className = "retorno";
+  const corpo = tipo === "ia"
+    ? { chave_api: $("#c-chave").value.trim() }
+    : { usuario: $("#c-smtpu").value.trim(), senha: $("#c-smtps").value.trim() };
+  try {
+    const r = await api(tipo === "ia" ? "/api/config/testar-ia" : "/api/config/testar-email", { method: "POST", body: corpo });
+    ret.textContent = r.mensagem + (r.ok && (corpo.chave_api || corpo.senha) ? " Clique em Salvar configurações para guardar." : "");
+    ret.className = "retorno " + (r.ok ? "ok" : "erro");
+  } catch (e) { ret.textContent = e.message; ret.className = "retorno erro"; }
 }
 
 /* ---------- eventos ---------- */
@@ -536,14 +890,25 @@ document.addEventListener("click", async (ev) => {
   if (!el) return;
   if (el.classList.contains("aba")) return trocarAba(el.dataset.aba);
   if (el.id === "btn-buscar") return buscarAgora();
+  if (el.id === "btn-adicionar") return janelaAdicionar();
+  if (el.id === "janela-fechar") return fecharJanela();
+  if (el.dataset.ir) return trocarAba(el.dataset.ir);
   if (el.hasAttribute("data-copiar")) return copiar($("p", el.closest(".resposta")).textContent, el);
   if (el.dataset.copiarTexto) return copiar(el.dataset.copiarTexto, el);
   const artigo = el.closest(".vaga"), item = el.closest(".item"), msg = el.closest(".mensagem-modelo");
   try {
+    switch (el.dataset.acaoGlobal) {
+      case "reanalisar": return await iniciarTarefa("/api/reanalisar");
+      case "curriculo-ia": return await curriculoIA(el);
+      case "refazer-entrevista": return await janelaEntrevista(el.dataset.id, true);
+      case "testar-ia": return await testar("ia");
+      case "testar-email": return await testar("email");
+    }
     if (el.dataset.acao === "detalhe") return await abrirDetalhe(artigo, el);
     if (el.dataset.acao === "respostas") return await carregarRespostas(artigo, el);
     if (el.dataset.acao === "status") return await mudarStatus(artigo, el.dataset.status);
     if (el.dataset.acao === "historico") return await mostrarHistorico(item, el);
+    if (el.dataset.acao === "entrevista") return await janelaEntrevista(item.dataset.id);
     if (el.dataset.acao === "followup") {
       await api(`/api/vagas/${msg.dataset.id}/followup`, { method: "POST" });
       avisar("Follow-up registrado. O lembrete volta se continuar sem resposta.");
@@ -551,15 +916,23 @@ document.addEventListener("click", async (ev) => {
     }
   } catch (e) { avisar(e.message); }
 });
+document.addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  if (ev.target.id === "form-vaga") enviarVaga(ev.target);
+  if (ev.target.id === "form-config") salvarConfig(ev.target);
+});
 document.addEventListener("change", (ev) => {
   if (ev.target.dataset.acao === "etapa") mudarEtapa(ev.target.closest(".item"), ev.target.value).catch((e) => avisar(e.message));
 });
+$("#janela").addEventListener("click", (ev) => { if (ev.target.id === "janela") fecharJanela(); });
 let timerFiltro;
 $("#filtro-texto").addEventListener("input", () => { clearTimeout(timerFiltro); timerFiltro = setTimeout(renderizar, 250); });
 $("#filtro-nota").addEventListener("change", renderizar);
 
-carregarResumo().then(() => { trocarAba("fila"); if (estado.resumo.busca.rodando) buscarAgora(); })
-  .catch((e) => { $("#conteudo").innerHTML = `<div class="vazio"><h3>O painel não respondeu</h3><p>${esc(e.message)}. Rode <code>python -m enviador painel</code> de novo no terminal.</p></div>`; });
+carregarResumo().then(() => {
+  trocarAba(estado.resumo.configurado ? "fila" : "config");
+  if (estado.resumo.tarefa.rodando) iniciarTarefa(estado.resumo.tarefa.tipo === "reanalise" ? "/api/reanalisar" : "/api/buscar");
+}).catch((e) => { $("#conteudo").innerHTML = `<div class="vazio"><h3>O painel não respondeu</h3><p>${esc(e.message)}. Rode <code>python -m enviador painel</code> de novo no terminal.</p></div>`; });
 </script>
 </body>
 </html>

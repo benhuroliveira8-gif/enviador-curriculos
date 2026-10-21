@@ -1,4 +1,5 @@
 """Uso:
+    python -m enviador configurar  # assistente: responde perguntas e o config.yaml é criado
     python -m enviador painel      # abre o painel visual no navegador (recomendado)
     python -m enviador buscar      # procura vagas, analisa com seu currículo e mostra o ranking
     python -m enviador enviar      # idem, e se candidata por e-mail às recomendadas que têm endereço
@@ -8,6 +9,11 @@
     python -m enviador etapa ID ETAPA ["observação"]   # ex.: etapa 12 entrevista "dia 20 às 14h"
     python -m enviador followup    # candidaturas sem resposta há muito tempo  (--feito ID para registrar)
     python -m enviador raiox       # o que as vagas pedem e falta no seu currículo
+    python -m enviador curriculo   # sugestões para melhorar o currículo  (--ia para sugestões escritas pela IA)
+    python -m enviador adicionar   # cadastra uma vaga de qualquer site (InfoJobs, LinkedIn...) colando a descrição
+    python -m enviador reanalisar  # refaz com IA a análise das vagas avaliadas só por palavras
+    python -m enviador entrevista ID   # prepara você para a entrevista daquela vaga  (--refazer)
+    python -m enviador resultados  # o que avança e o que não avança nas suas candidaturas
     python -m enviador manuais     # lista as vagas recomendadas sem e-mail
     python -m enviador resumo      # estatísticas do histórico
 """
@@ -103,10 +109,81 @@ def cmd_followup(config, banco, feito):
           "\nDepois de enviar: python -m enviador followup --feito ID")
 
 
+def cmd_curriculo(config, banco, com_ia):
+    from . import curriculo, raiox
+    cv = carregar_cv(config)
+    vagas = banco.vagas_analisadas()
+    rx = raiox.calcular(vagas, cv, config)
+    area = [v for v in vagas if (v["nota"] or 0) >= (config.get("raiox") or {}).get("nota_minima_area", 30)]
+    curriculo.imprimir(curriculo.sugestoes_regras(cv, rx, config, area))
+    if com_ia:
+        print("Pedindo sugestões à IA...\n")
+        d = curriculo.sugestoes_ia(cv, rx, config)
+        if d["resumo_sugerido"]:
+            print("RESUMO SUGERIDO\n" + d["resumo_sugerido"] + "\n")
+        for a in d["ajustes"]:
+            print(f"- {a['secao']}: {a['sugestao']}" + (f"\n  Exemplo: {a['exemplo']}" if a["exemplo"] else ""))
+        if d["palavras_chave"]:
+            print("\nTermos para incluir: " + ", ".join(d["palavras_chave"]))
+
+
+def _ler_varias_linhas(rotulo):
+    print(f"{rotulo} Cole o texto e, numa linha sozinha, digite FIM e aperte Enter:")
+    linhas = []
+    while True:
+        l = input()
+        if l.strip().upper() == "FIM":
+            return "\n".join(linhas)
+        linhas.append(l)
+
+
+def cmd_adicionar(config, banco, arquivo):
+    from .servico import ErroVaga, adicionar_vaga
+    titulo = input("Cargo: ").strip()
+    empresa = input("Empresa: ").strip()
+    url = input("Link da vaga: ").strip()
+    cidade = input("Cidade (Enter se não souber): ").strip()
+    remoto = input("É remota? [s/N]: ").strip().lower().startswith("s")
+    if arquivo:
+        descricao = open(arquivo, encoding="utf-8").read()
+    else:
+        descricao = _ler_varias_linhas("Descrição da vaga.")
+    print("Analisando...")
+    try:
+        r, nova = adicionar_vaga(config, banco, titulo, descricao, empresa, url, cidade, remoto)
+    except ErroVaga as e:
+        sys.exit(str(e))
+    if not nova:
+        print(f"Essa vaga já estava cadastrada (ID {r['id']}, status {r['status']}).")
+        return
+    print(f"\nNota {r['nota']}: {r['titulo']} | {r['empresa'] or '?'}\n  {r['analise']}\n"
+          f"Ela está na fila. Abra o painel ou rode `python -m enviador candidatar`.")
+
+
+def cmd_entrevista(config, banco, id_, refazer):
+    from . import entrevista
+    if not id_:
+        sys.exit("Uso: python -m enviador entrevista ID   (veja os IDs com `python -m enviador feitas`)")
+    linha = banco.vaga(id_)
+    if not linha:
+        sys.exit(f"Não encontrei a vaga {id_}.")
+    print("Preparando...")
+    p = entrevista.preparo_do_banco(banco, linha, carregar_cv(config), config, refazer)
+    texto = entrevista.texto(linha, p)
+    print(texto)
+    from pathlib import Path
+    from .candidatura import nome_arquivo, vaga_do_banco
+    pasta = Path("candidaturas"); pasta.mkdir(exist_ok=True)
+    destino = pasta / ("Entrevista - " + nome_arquivo(vaga_do_banco(linha)))
+    destino.write_text(texto, encoding="utf-8")
+    print(f"Salvo em {destino}")
+
+
 def main():
     ap = argparse.ArgumentParser(prog="enviador", description="Enviador automático de currículos")
-    ap.add_argument("comando", choices=["painel", "buscar", "enviar", "candidatar", "diario", "feitas",
-                                        "etapa", "followup", "raiox", "manuais", "resumo"])
+    ap.add_argument("comando", choices=["configurar", "painel", "buscar", "enviar", "candidatar", "diario", "feitas",
+                                        "etapa", "followup", "raiox", "curriculo", "adicionar", "reanalisar",
+                                        "entrevista", "resultados", "manuais", "resumo"])
     ap.add_argument("id", nargs="?", help="etapa: ID da vaga")
     ap.add_argument("etapa", nargs="?", help="etapa: nome da etapa")
     ap.add_argument("obs", nargs="?", help="etapa: observação opcional")
@@ -115,6 +192,9 @@ def main():
     ap.add_argument("--limite", type=int, help="candidatar: quantas vagas passar nesta sessão")
     ap.add_argument("--feito", help="followup: ID da vaga em que você já fez o follow-up")
     ap.add_argument("--porta", type=int, default=8765, help="painel: porta local")
+    ap.add_argument("--ia", action="store_true", help="curriculo: pedir sugestões escritas pela IA")
+    ap.add_argument("--refazer", action="store_true", help="entrevista: gerar o preparo de novo")
+    ap.add_argument("--arquivo", help="adicionar: arquivo .txt com a descrição da vaga")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -125,6 +205,14 @@ def main():
         logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING,
                             format="%(levelname)s %(message)s")
     logging.getLogger("pypdf").setLevel(logging.ERROR)
+
+    if args.comando == "configurar":
+        from .configuracao import assistente
+        try:
+            assistente(args.config)
+        except (KeyboardInterrupt, EOFError):
+            print("\nCancelado. Nada foi salvo.")
+        return
 
     banco = Banco(args.banco)
     try:
@@ -149,13 +237,29 @@ def main():
         if c == "raiox":
             from . import raiox
             return raiox.imprimir(raiox.calcular(banco.vagas_analisadas(), carregar_cv(config), config))
+        if c == "curriculo":
+            return cmd_curriculo(config, banco, args.ia)
+        if c == "resultados":
+            from . import aprendizado
+            return aprendizado.imprimir(aprendizado.analisar(banco, config))
+        if c == "adicionar":
+            return cmd_adicionar(config, banco, args.arquivo)
+        if c == "reanalisar":
+            from .servico import reanalisar
+            print("Reanalisando com IA (pode levar alguns minutos)...")
+            r = reanalisar(config, banco)
+            print(f"{r['analisadas']} vagas analisadas com IA, {r['recomendadas']} recomendadas, "
+                  f"{r['mudaram']} mudaram de lado (recomendada ↔ nota baixa).")
+            return
+        if c == "entrevista":
+            return cmd_entrevista(config, banco, args.id, args.refazer)
         if c == "diario":
             from .diario import executar
             executar(config, banco, saida=lambda m: (print(m) if sys.stdout else None, log.info(m)))
             return
         if c == "painel":
             from .painel import rodar
-            return rodar(config, args.banco, porta=args.porta)
+            return rodar(config, args.banco, porta=args.porta, caminho_config=args.config)
         if c == "candidatar":
             from .candidatura import executar
             try:
@@ -166,6 +270,8 @@ def main():
         cmd_buscar(config, banco, enviar=c == "enviar")
     except ErroConfig as e:
         sys.exit(str(e))
+    except KeyboardInterrupt:
+        print("\nInterrompido.")
 
 
 if __name__ == "__main__":

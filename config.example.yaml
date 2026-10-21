@@ -1,75 +1,74 @@
-# Copie este arquivo para config.yaml e preencha com seus dados.
-# NUNCA compartilhe o config.yaml: ele contém sua senha de e-mail.
+# Configuração do Enviador de Currículos.
+# Dá para editar por aqui, pelo painel (aba Configurações) ou com: python -m enviador configurar
+# NUNCA compartilhe este arquivo: ele guarda senha de e-mail e chave da IA.
 
 candidato:
   nome: "Seu Nome Completo"
   email: "seu.email@gmail.com"
   telefone: "(51) 99999-9999"
   linkedin: "https://linkedin.com/in/seu-perfil"
-  curriculo_pdf: "curriculo.pdf"        # caminho do seu currículo em PDF
-  pretensao_salarial: ""                # opcional, aparece na ficha de cada candidatura
-  resumo: >
-    Breve resumo profissional em 2-3 frases. Ele é usado para montar
-    a mensagem de apresentação enviada junto com o currículo.
+  curriculo_pdf: "curriculo.pdf"          # seu currículo em PDF, nesta pasta
+  pretensao_salarial: ""     # opcional; aparece nas fichas de candidatura
+  resumo: >-
+    Breve resumo profissional em 2 ou 3 frases. Ele vai nas mensagens enviadas às empresas e
+    nas respostas dos formulários.
 
 busca:
-  palavras_chave: ["analista", "desenvolvedor python"]   # o que procurar
-  palavras_excluidas: ["sênior", "senior", "estágio"]    # ignorar vagas com estes termos
-  cidades: []                     # ex.: ["Porto Alegre"]; vazio = qualquer lugar
+  palavras_chave: ["analista de suporte", "técnico de TI"]     # cargos que você procura
+  palavras_excluidas: ["sênior", "senior", "estágio", "estagiário"]     # vagas com estes termos no título são ignoradas
+  cidades: ["Porto Alegre"]     # vazio = qualquer lugar
   aceitar_remoto: true
-  dias_maximos: 15                # ignora vagas publicadas há mais tempo
+  dias_maximos: 15     # ignora vagas publicadas há mais tempo
   fontes:
-    gupy: true                    # vagas de todas as áreas (normalmente sem e-mail -> lista para candidatura manual)
-    adzuna: false                 # agrega vagas de vários sites; precisa de app_id e app_key (abaixo)
-    github_vagas: true            # repositórios brasileiros de vagas (tecnologia), muitas trazem e-mail de contato
-    repositorios_github:
-      - "backend-br/vagas"
-      - "frontendbr/vagas"
-      - "react-brasil/vagas"
-      - "qa-brasil/vagas"
-  github_token: ""
-  adzuna:                         # cadastro gratuito em https://developer.adzuna.com
+    gupy: true     # vagas de todas as áreas
+    adzuna: false     # agrega vários sites; precisa de app_id e app_key (abaixo)
+    github_vagas: false     # repositórios de vagas de programação; muitas trazem e-mail
+  repositorios_github: ["backend-br/vagas", "frontendbr/vagas", "react-brasil/vagas", "qa-brasil/vagas"]
+  github_token: ""     # opcional; aumenta o limite de consultas ao GitHub
+  adzuna:     # cadastro gratuito em https://developer.adzuna.com
     app_id: ""
     app_key: ""
-    onde: "Rio Grande do Sul"     # região da busca na Adzuna; vazio = Brasil todo                # opcional; aumenta o limite de buscas no GitHub
+    onde: ""     # região da busca na Adzuna; vazio = Brasil todo
 
 analise:
-  # Cada vaga é comparada com o texto do seu currículo em PDF.
-  usar_ia: true                   # análise cuidadosa com Claude (precisa de ANTHROPIC_API_KEY)
-  nota_minima: 65                 # só se candidata a vagas com nota >= este valor (0 a 100)
-  nota_minima_pre_filtro: 25      # vagas abaixo disso nem vão para a IA (economiza)
-  max_analises_ia: 30             # máximo de vagas analisadas pela IA por execução
+  usar_ia: true     # análise com IA (precisa da chave em ia.chave_api)
+  nota_minima: 65     # vagas com nota a partir daqui são recomendadas (0 a 100)
+  nota_minima_pre_filtro: 25     # abaixo disso a vaga nem vai para a IA
+  max_analises_ia: 30     # máximo de vagas analisadas pela IA por busca
+
+ia:
+  chave_api: ""     # chave da Anthropic (console.anthropic.com); começa com sk-
 
 envio:
-  modo_teste: true               # true = só mostra o que seria enviado, sem enviar nada
-  max_por_dia: 15                 # limite diário para não parecer spam
-  intervalo_segundos: [60, 180]   # espera aleatória entre envios
-  copia_para_mim: true            # recebe uma cópia (CCO) de cada envio
-  empresas_bloqueadas: []         # nunca enviar para estas empresas/domínios
-  automatico_no_diario: false     # true = a rotina diária também envia os e-mails de candidatura
+  modo_teste: true     # true = candidatura por e-mail só mostra o que enviaria
+  max_por_dia: 15
+  intervalo_segundos: [60, 180]     # espera aleatória entre envios
+  copia_para_mim: true
+  empresas_bloqueadas: []     # nunca enviar para estas empresas
+  automatico_no_diario: false     # true = a rotina diária também envia candidaturas por e-mail
 
-smtp:
+smtp:     # conta que envia os e-mails. Gmail: use uma "senha de app"
   servidor: "smtp.gmail.com"
   porta: 587
   usuario: "seu.email@gmail.com"
-  senha: ""                       # Gmail: use uma "senha de app", não a senha normal
+  senha: ""
 
-aviso:
-  # Rotina diária (python -m enviador diario, agendada com agendar_tarefa.ps1)
-  email: true                     # manda o resumo por e-mail (usa a conta do bloco smtp)
-  para: ""                        # vazio = o seu e-mail do bloco candidato
-  nota_alerta: 75                 # vagas com nota a partir daqui entram como destaque no e-mail
-  enviar_sem_novidades: false     # true = manda e-mail mesmo nos dias sem vaga nova nem follow-up
+aviso:     # resumo diário por e-mail
+  email: true
+  para: ""     # vazio = o seu e-mail do bloco candidato
+  nota_alerta: 75     # vagas com nota a partir daqui viram destaque
+  enviar_sem_novidades: false
 
 acompanhamento:
-  dias_followup: 10               # lembra de fazer follow-up após tantos dias sem novidade
+  dias_followup: 10     # lembrete de follow-up após tantos dias sem novidade
 
 raiox:
-  nota_minima_area: 30            # vagas abaixo desta nota são de outra área e não entram no raio-x
-  habilidades_extras: {}          # termos a mais para contar, ex.: {"Fortinet NSE": ["fortinet", "nse ?[1-4]"]}
+  nota_minima_area: 30     # vagas abaixo disso são de outra área
+  areas: []     # vazio = todas; ex.: ["ti", "administrativo"]
+  habilidades_extras: {}     # ex.: {"Fortinet NSE": ["fortinet", "nse ?[1-4]"]}
 
 mensagem:
-  usar_ia: false                  # true = gera carta personalizada com Claude (precisa de ANTHROPIC_API_KEY)
+  usar_ia: true     # respostas e e-mails escritos sob medida pela IA
   assunto: "Candidatura - {cargo} - {nome}"
   modelo: |
     Olá, equipe de recrutamento{empresa_frase}!
@@ -80,4 +79,4 @@ mensagem:
 
     Atenciosamente,
     {nome}
-    {telefone} | {linkedin}
+    {telefone}
